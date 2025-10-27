@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MentorMatch | Home</title>
+    <link rel="stylesheet" href="static/main.css">
+</head>
+<body>
+    <div style="text-align: center; margin-top: 20px">
+    <!-- <img alt="Astra Logo" src="static/assets/astra.png" style="width:400px; height: 400px;"/>  -->
+    </div>
+    <h1>MentorMatch</h1>
+    <div class="button_div">
+        <form action="/match" method="post">
+            <button class="large" type="submit"><a> Get Started </a> </button>
+        </form>
+        <button class="large"> <a href="/add"> Add Mentor/Mentee </a> </button>
+        <button class="large"> <a href="/view"> View Mentors/Mentees </a> </button>
+    </div>
+    <h2 class="about_header"> What is ASTRA? </h2>
+    <p class="about_text"> ASTRA (ArXiv Sourced Text Recommendation Agent), as the name suggests, is a paper recommendation service based on arXiv. We've collected {{ num_papers }}+ papers across various scientific disciplines
+    for recommendation. Simply provide a paper's title, arXiv ID, or a handful of keywords, and ASTRA will curate a list of relevant documents.    
+    </p>
+    <h2 class="about_header"> How does ASTRA work? </h2>
+    <p class="about_text">
+        The core component of ASTRA's recommendation engine is <a href="https://cohere.com/embed"> Embed </a> ,
+        a large language model developed by Cohere. Embed was built to handle mixed-modality documents 
+        and has demonstrated results in retrieval, making it a perfect choice for ASTRA. With this approach,
+        recommendation is simply a k-nearest neighbors problem, made expedient via the use of 
+        <a href="https://github.com/facebookresearch/faiss/wiki">FAISS</a>.
+    </p>
+    <h2 class="about_header"> How can I learn more? </h2>
+    <p class="about_text">
+        The full source code for ASTRA, including the raw datasets, can be found <a href="https://github.com/colbyendres/Astra"> here</a>.
+    </p>
+</body>
+</html>

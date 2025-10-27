@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Astra | Add Paper</title>
+    <link rel="stylesheet" href="static/main.css">
+</head>
+<body>
+    {% with message = get_flashed_messages(with_categories=True) %}
+    {% if message %}
+        <div class="flash">
+            {% if message[0][0] == "error" %}
+            <strong style="color: #ff0000"> Error: </strong> 
+            {% else %}
+            <strong style="color: #3a7e42"> Success: </strong>
+            {% endif %}
+            {{message[0][1]}}
+        </div>
+    {% endif %}
+    {% endwith %}
+    <h1>Add Paper</h1>
+    <form action="/publish" method="post">
+        <label for="arxiv_id">arXiv ID:</label>
+        <input type="text" name="arxiv_id" id="arxiv_id">
+        <br>
+        <label> <strong> OR: </strong></label>
+        <label for="title"> Title </label>
+        <input type="text" name="title" id="title">
+        <br>
+        <label for="abstract"> Abstract </label>
+        <input type="text" name="abstract" id="abstract">
+        <br>
+        <div style="display: flex; gap: 20px; width: 80%; margin-bottom: 20px">
+            <div style="display: flex; flex-direction: column; align-items: center; width: 50%">
+                <label for="authors">Authors:</label>
+                <input type="text" name="authors" id="authors" style="width: 100%;">
+            </div>
+            <div style="display: flex; flex-direction: column; align-items: center; width: 50%">
+                <label for="url">URL:</label>
+                <input type="text" name="url" id="url" style="width: 100%;">
+            </div>
+        </div>
+        <button type="submit.large">Add to Astra</button>
+        <a href="/" style="margin-top: 20px;">Back to Home</a>
+    </form>
+
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MentorMatch | View People</title>
+    <link rel="stylesheet" href="static/main.css">
+</head>
+<body>
+    {% with message = get_flashed_messages(with_categories=True) %}
+    {% if message %}
+        <div class="flash">
+            {% if message[0][0] == "error" %}
+            <strong style="color: #ff0000"> Error: </strong> 
+            {% elif message[0][0] == "warning" %}
+            <strong style="color: #f9e71f"> Warning: </strong>
+            {% endif %}
+            {{message[0][1]}}
+        </div>
+    {% endif %}
+    {% endwith %}
+    <h1>People</h1>
+    <div class="match-container">
+        <div class="match-header">
+            <span class="header-col">Mentor</span>
+            <span class="header-col">Mentee</span>
+        </div>
+        <ul class="match-list">
+            {% for mentor, mentee in people %}
+            <li class="match-item">
+                {% if mentor %}
+                    <div class="person-box">{{ mentor.name }} <br> <span class="prefer-span"> prefers: {{mentor.get_prefs_pretty()}} </span> </div>
+                {% endif %}
+                {% if mentee %}
+                    <div class="person-box">{{ mentee.name }} <br> <span class="prefer-span"> prefers: {{mentee.get_prefs_pretty()}} </span> </div>
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <nav style="width: 80%; margin: auto; text-align: center;">
+    <a href="/"> Back to Home </a>
+    </nav>
+</body>
+</html>
+

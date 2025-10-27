@@ -1,0 +1,12 @@
+numpy<2.0.0
+faiss-cpu
+psycopg2
+flask
+flask-sqlalchemy
+faiss-cpu
+titlecase
+arxiv
+gunicorn
+dotenv
+boto3
+pylatexenc

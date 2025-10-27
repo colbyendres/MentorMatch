@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MentorMatch | Matching</title>
+    <link rel="stylesheet" href="static/main.css">
+</head>
+<body>
+    {% with message = get_flashed_messages(with_categories=True) %}
+    {% if message %}
+        <div class="flash">
+            {% if message[0][0] == "error" %}
+            <strong style="color: #ff0000"> Error: </strong> 
+            {% elif message[0][0] == "warning" %}
+            <strong style="color: #f9e71f"> Warning: </strong>
+            {% elif message[0][0] == "success" %}
+            <strong style="color: #3a7e42"> Success: </strong>
+            {% endif %}
+            {{message[0][1]}}
+        </div>
+    {% endif %}
+    {% endwith %}
+    <h1>Results</h1>
+    <ul class="match-list">
+        {% for mentor, mentee, score in matches %}
+        <li class="match-item">
+            <div class="person-box">{{ mentor }}</div>
+            <div class="connection
+                {% if score >= 2 %} high
+                {% elif score >= 1 %} medium
+                {% else %} low
+                {% endif %}
+            ">
+                <!-- <span class="score"> -->
+                    {% if score >= 2 %} <img src="static/assets/icons/heart.tiff" class="happy_icon"> 
+                    {% elif score >= 1 %} <img src="static/assets/icons/happy.tiff" class="happy_icon">
+                    {% else %} <img src="static/assets/icons/meh.tiff" class="happy_icon">
+                    {% endif %}
+                <!-- </span> -->
+            </div>
+            <div class="person-box">{{ mentee }}</div>
+        </li>
+        {% endfor %}
+    </ul>
+    <nav class="link_nav">
+    <a href="/"> Back to Home </a>
+    |
+    <a href="/match/download"> Download as CSV</a>
+    </nav>
+</body>
+</html>
+

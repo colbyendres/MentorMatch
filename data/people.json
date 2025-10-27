@@ -1,0 +1,41 @@
+{
+    "mentors": {
+        "Alice": {
+            "prefs": [
+                "Dan"
+            ]
+        },
+        "Bob": {
+            "prefs": [
+                "Dan",
+                "Elise"
+            ]
+        },
+        "Charlie": {
+            "prefs": [
+                "Dan",
+                "Elise",
+                "Fiona"
+            ]
+        }
+    },
+    "mentees": {
+        "Dan": {
+            "prefs": [
+                "Alice",
+                "Bob"
+            ]
+        },
+        "Elise": {
+            "prefs": [
+                "Bob",
+                "Charlie"
+            ]
+        },
+        "Fiona": {
+            "prefs": [
+                "Charlie"
+            ]
+        }
+    }
+}
