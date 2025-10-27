@@ -59,7 +59,6 @@ def download():
     flask.current_app.matcher.download_match()
     if not os.path.exists(Config.REMOTE_MATCH_FILE):
         flask.flash('Match file does not exist on server: download refused', 'warning')
+        return flask.redirect(flask.url_for('main.match'))
     else:
-        flask.send_file(Config.REMOTE_MATCH_FILE, as_attachment=True)
-        flask.flash('File successfully downloaded', 'success')
-    return flask.redirect(flask.url_for('main.match'))
+        return flask.send_file(Config.REMOTE_MATCH_FILE, as_attachment=True)
