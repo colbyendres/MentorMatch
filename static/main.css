@@ -474,6 +474,28 @@ li.match-item {
     padding-bottom: 5px;
 }
 
+.weight_bullet {
+    display: grid;
+    grid-template-columns: auto 1fr auto; /* img | text | span */
+    align-items: center; /* vertical centering within row */
+    gap: 5em; /* horizontal spacing */
+    text-align: center;
+    border: none;
+}
+
+.weight_list {
+    width: 80%;
+    margin: auto;
+    list-style: circle;
+    padding-left: 0px;
+}
+
+.mini_icon img {
+    width: 25px;
+    height: 25px;
+    display: inline;
+}
+
 .header-spacer {
     flex: 1;
 }

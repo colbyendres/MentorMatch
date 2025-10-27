@@ -6,7 +6,7 @@
 </head>
 <body>
     <div style="text-align: center; margin-top: 20px">
-    <!-- <img alt="Astra Logo" src="static/assets/astra.png" style="width:400px; height: 400px;"/>  -->
+    <img alt="Astra Logo" src="static/assets/mentormatch.png" style="width:400px; height: 400px;" alt="MentorMatch"/> 
     </div>
     <h1>MentorMatch</h1>
     <div class="button_div">
@@ -16,21 +16,27 @@
         <button class="large"> <a href="/add"> Add Mentor/Mentee </a> </button>
         <button class="large"> <a href="/view"> View Mentors/Mentees </a> </button>
     </div>
-    <h2 class="about_header"> What is ASTRA? </h2>
-    <p class="about_text"> ASTRA (ArXiv Sourced Text Recommendation Agent), as the name suggests, is a paper recommendation service based on arXiv. We've collected {{ num_papers }}+ papers across various scientific disciplines
-    for recommendation. Simply provide a paper's title, arXiv ID, or a handful of keywords, and ASTRA will curate a list of relevant documents.    
+    <h2 class="about_header"> What is MentorMatch? </h2>
+    <p class="about_text"> MentorMatch is a service designed to pair mentors to mentees. Each user can create a customizable profile,
+        allowing them to select as many preferred partners as they like. When all of the profiles are complete, MentorMatch will
+        generate a mapping that maximizes the happiness of all parties involved.
     </p>
-    <h2 class="about_header"> How does ASTRA work? </h2>
+    <h2 class="about_header"> How does MentorMatch work? </h2>
     <p class="about_text">
-        The core component of ASTRA's recommendation engine is <a href="https://cohere.com/embed"> Embed </a> ,
-        a large language model developed by Cohere. Embed was built to handle mixed-modality documents 
-        and has demonstrated results in retrieval, making it a perfect choice for ASTRA. With this approach,
-        recommendation is simply a k-nearest neighbors problem, made expedient via the use of 
-        <a href="https://github.com/facebookresearch/faiss/wiki">FAISS</a>.
+        The designation of mentors and mentees naturally forms the structure of a <a href="https://en.wikipedia.org/wiki/Bipartite_graph"> bipartite graph</a>.
+        We generate our assignments via solving a max-weight bipartite matching problem. Our weights are defined as follows: </p>
+        <ul class="weight_list">
+            <li class="weight_bullet"> <img src="static/assets/icons/heart.tiff" class="mini_icon"> Both partners listed each other as preferred  <span> (2 points) </span>
+            <li class="weight_bullet"> <img src="static/assets/icons/happy.tiff" class="mini_icon">  Exactly one partner listed another as preferred  <span> (1 point) </span>
+            <li class="weight_bullet"> <img src="static/assets/icons/meh.tiff" class="mini_icon">  Neither partner listed each other as preferred <span> (0 point) </span>
+        </ul>
+    <p class="about_text">
+        The full matching can be viewed via the "Getting Started" page. It can also be downloaded as a separate CSV file,
+        which lists the mentor-mentee pairs as well as the matching score.
     </p>
     <h2 class="about_header"> How can I learn more? </h2>
     <p class="about_text">
-        The full source code for ASTRA, including the raw datasets, can be found <a href="https://github.com/colbyendres/Astra"> here</a>.
+        The full source code for MentorMatch, including sample datasets, can be found <a href="https://github.com/colbyendres/MentorMatch"> here</a>.
     </p>
 </body>
 </html>
