@@ -62,3 +62,9 @@ def download():
         return flask.redirect(flask.url_for('main.match'))
     else:
         return flask.send_file(Config.REMOTE_MATCH_FILE, as_attachment=True)
+
+@bp.route("/edit/<string:user_name>", methods=["GET", "POST"])
+def edit(user_name):
+    if flask.request.method == "GET":
+        person = flask.current_app.people.get_from_name(user_name)
+        return flask.render_template("edit.html", name=user_name, is_mentor=person.is_mentor)

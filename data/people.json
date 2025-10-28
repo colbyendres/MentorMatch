@@ -8,8 +8,8 @@
         "Bob": {
             "prefs": [
                 "Dan",
-                "Elise"
-            ]
+                "Elise"   
+           ]
         },
         "Charlie": {
             "prefs": [
@@ -28,8 +28,8 @@
         },
         "Elise": {
             "prefs": [
-                "Bob",
-                "Charlie"
+                "Charlie",
+                "Bob"
             ]
         },
         "Fiona": {

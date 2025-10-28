@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MentorMatch | Edit Person</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='main.css')}}">
+</head>
+<body>
+    {% with message = get_flashed_messages(with_categories=True) %}
+    {% if message %}
+    <div class="flash">
+        {% if message[0][0] == "error" %}
+        <strong style="color: #ff0000"> Error: </strong>
+        {% else %}
+        <strong style="color: #3a7e42"> Success: </strong>
+        {% endif %}
+        {{message[0][1]}}
+    </div>
+    {% endif %}
+    {% endwith %}
+    <h1>Edit Person</h1>
+    <form action="/edit" method="post">
+        <label for="name">Name:</label>
+        <input type="text" name="name" id="name" value="{{ name }}">
+        <br>
+
+        <label for="is_mentor"> Position </label>
+        <select id="position" name="position" required="True">
+            {% if is_mentor %}
+                <option value="mentor" selected> Mentor </option>
+                <option value="mentee"> Mentee </option>
+            {% else %}
+                <option value="mentor"> Mentor </option>
+                <option value="mentee" selected> Mentee </option> 
+            {% endif %}            
+        </select>
+        <br>
+
+        <label for="preferred_matches">Preferred Matches</label>
+        <select id="preferred_matches" class="select2-hidden-accessible" style="width: 80%;" name="matches"
+            multiple="multiple">
+            <optgroup label="mentors">
+                {% for mentor in mentors %}
+                <option value="{{ mentor.name }}" data-role="mentor">{{ mentor.name }}</option>
+                {% endfor %}
+            </optgroup>
+            <optgroup label="mentees">
+                {% for mentee in mentees %}
+                <option value="{{ mentee.name }}" data-role="mentee">{{ mentee.name }}</option>
+                {% endfor %}
+            </optgroup>
+                
+        </select>
+        <br>
+
+        <button type="submit.large"> Make Changes </button>
+        <nav class="link_nav">
+            <a href="/" style="margin-top: 20px;">Back to Home</a>
+        </nav>
+    </form>
+
+</body>
+
+</html>

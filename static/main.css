@@ -378,7 +378,12 @@ li.match-item {
     border: none;
 }
 
-.person-box {
+.match-item:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+.mentor-link {
     flex: 0 0 30%;
     text-align: center;
     border: 2px solid;
@@ -386,6 +391,34 @@ li.match-item {
     padding: 0.5rem 1rem;
     font-weight: 500;
     color: white;
+    text-decoration: none; /* remove underline */
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.mentor-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: scale(1.02);
+    border-bottom-color: white;
+}
+
+.mentee-link {
+    flex: 0 0 30%;
+    text-align: center;
+    border: 2px solid;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    color: white;
+    text-decoration: none; /* remove underline */
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.mentee-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: scale(1.02);
+    border-bottom-color: white
 }
 
 .connection {

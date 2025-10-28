@@ -27,10 +27,10 @@
             {% for mentor, mentee in people %}
             <li class="match-item">
                 {% if mentor %}
-                    <div class="person-box">{{ mentor.name }} <br> <span class="prefer-span"> prefers: {{mentor.get_prefs_pretty()}} </span> </div>
+                    <a href="/edit/{{mentor.name}}" class="mentor-link">{{ mentor.name }} <br> <span class="prefer-span"> prefers: {{mentor.get_prefs_pretty()}} </span> </a>
                 {% endif %}
                 {% if mentee %}
-                    <div class="person-box">{{ mentee.name }} <br> <span class="prefer-span"> prefers: {{mentee.get_prefs_pretty()}} </span> </div>
+                    <a href="/edit/{{mentee.name}}" class="mentee-link">{{ mentee.name }} <br> <span class="prefer-span"> prefers: {{mentee.get_prefs_pretty()}} </span> </a>
                 {% endif %}
             </li>
             {% endfor %}

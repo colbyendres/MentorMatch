@@ -71,6 +71,16 @@ class PeopleInfo:
             mentee_names.append(self.mentees[col].name)
         return mentor_names, mentee_names
     
+    def get_from_name(self, user_name):
+        idx = self.to_index.get(user_name)
+        if idx is None:
+            return None
+        if self.mentors[idx].name == user_name:
+            return self.mentors[idx]
+        if self.mentees[idx].name == user_name:
+            return self.mentees[idx]
+        return None
+    
 class Matcher:
     def __init__(self, p_info: PeopleInfo):
         self.people_info = p_info
@@ -78,7 +88,7 @@ class Matcher:
         
     def match(self):
         mat = self.people_info.construct_matrix()
-        row_idx, col_idx = linear_sum_assignment(-mat)
+        row_idx, col_idx = linear_sum_assignment(cost_matrix=mat, maximize=True)
         mentor_names, mentee_names = self.people_info.get_from_indices(row_idx, col_idx)
         scores = [mat[row_idx[i]][col_idx[i]] for i in range(len(row_idx))]
         self.matches = list(zip(mentor_names, mentee_names, scores))
