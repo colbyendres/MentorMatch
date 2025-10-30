@@ -2,12 +2,18 @@ from flask import Flask
 from config import Config
 from routes import bp as routes_bp
 from matcher import Matcher, PeopleInfo
- 
+from models import db
+
 def start_app():    
     app = Flask(__name__)
     app.secret_key = Config.SECRET_KEY
+    app.config["SQLALCHEMY_DATABASE_URI"] = Config.DATABASE_URL
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+    db.init_app(app)
+
     with app.app_context():
-        app.people = PeopleInfo(Config.LOCAL_FILE_PATH)
+        app.people = PeopleInfo(db.session)
         app.matcher = Matcher(app.people)
     app.register_blueprint(routes_bp)
     return app

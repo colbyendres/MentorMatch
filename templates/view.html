@@ -24,13 +24,13 @@
             <span class="header-col">Mentee</span>
         </div>
         <ul class="match-list">
-            {% for mentor, mentee in people %}
+            {% for mentor, mentee, mentor_prefs, mentee_prefs in people %}
             <li class="match-item">
                 {% if mentor %}
-                    <a href="/edit/{{mentor.name}}" class="mentor-link">{{ mentor.name }} <br> <span class="prefer-span"> prefers: {{mentor.get_prefs_pretty()}} </span> </a>
+                    <a href="/edit/{{mentor}}?is_mentor=True" class="mentor-link">{{ mentor }} <br> <span class="prefer-span"> prefers: {{ mentor_prefs }} </span> </a>
                 {% endif %}
                 {% if mentee %}
-                    <a href="/edit/{{mentee.name}}" class="mentee-link">{{ mentee.name }} <br> <span class="prefer-span"> prefers: {{mentee.get_prefs_pretty()}} </span> </a>
+                    <a href="/edit/{{mentee}}?is_mentor=False" class="mentee-link">{{ mentee }} <br> <span class="prefer-span"> prefers: {{ mentee_prefs }} </span> </a>
                 {% endif %}
             </li>
             {% endfor %}
