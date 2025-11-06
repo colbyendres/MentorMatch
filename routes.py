@@ -50,7 +50,7 @@ def add():
 
 @bp.route("/view", methods=["GET"])
 def view():
-    people = flask.current_app.people.get_people()
+    people = flask.current_app.people.get_people_with_prefs()
     return flask.render_template("view.html", people=people)
 
 # TODO: Should this really be a GET?
@@ -66,5 +66,10 @@ def download():
 @bp.route("/edit/<string:user_name>", methods=["GET", "POST"])
 def edit(user_name):
     if flask.request.method == "GET":
-        person = flask.current_app.people.get_from_name(user_name)
-        return flask.render_template("edit.html", name=user_name, is_mentor=person.is_mentor)
+        is_mentor = flask.request.args.get('is_mentor').lower() == 'true'
+        return flask.render_template("edit.html", name=user_name, is_mentor=is_mentor)
+    else:
+        is_mentor = flask.request.form['position'] == 'mentor'
+        person = flask.current_app.people.get_from_name(user_name, is_mentor)
+        # TODO: Finish this stub
+        # Somehow need to recall old name/position to recall the Person object to update
