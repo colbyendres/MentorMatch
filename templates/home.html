@@ -5,6 +5,20 @@
     <link rel="stylesheet" href="static/main.css">
 </head>
 <body>
+    {% with message = get_flashed_messages(with_categories=True) %}
+    {% if message %}
+        <div class="flash">
+            {% if message[0][0] == "error" %}
+            <strong style="color: #ff0000"> Error: </strong> 
+            {% elif message[0][0] == "warning" %}
+            <strong style="color: #f9e71f"> Warning: </strong>
+            {% elif message[0][0] == "success" %}
+            <strong style="color: #3a7e42"> Success: </strong>
+            {% endif %}
+            {{message[0][1]}}
+        </div>
+    {% endif %}
+    {% endwith %}
     <div style="text-align: center; margin-top: 20px">
     <img alt="Astra Logo" src="static/assets/mentormatch.png" style="width:400px; height: 400px;" alt="MentorMatch"/> 
     </div>
@@ -16,6 +30,7 @@
         <button class="large"> <a href="/add"> Add Mentor/Mentee </a> </button>
         <button class="large"> <a href="/view"> View Mentors/Mentees </a> </button>
     </div>
+    <div class="hline"> </div>
     <h2 class="about_header"> What is MentorMatch? </h2>
     <p class="about_text"> MentorMatch is a service designed to pair mentors to mentees. Each user can create a customizable profile,
         allowing them to select as many preferred partners as they like. When all of the profiles are complete, MentorMatch will

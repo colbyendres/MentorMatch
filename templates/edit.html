@@ -1,9 +1,14 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>MentorMatch | Edit Person</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='main.css')}}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='select2.min.css') }}" />
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 </head>
+
 <body>
     {% with message = get_flashed_messages(with_categories=True) %}
     {% if message %}
@@ -18,7 +23,7 @@
     {% endif %}
     {% endwith %}
     <h1>Edit Person</h1>
-    <form action="/edit" method="post">
+    <form action="/edit/{{ name }}" method="post">
         <label for="name">Name:</label>
         <input type="text" name="name" id="name" value="{{ name }}">
         <br>
@@ -26,17 +31,17 @@
         <label for="is_mentor"> Position </label>
         <select id="position" name="position" required="True">
             {% if is_mentor %}
-                <option value="mentor" selected> Mentor </option>
-                <option value="mentee"> Mentee </option>
+            <option value="mentor" selected> Mentor </option>
+            <option value="mentee"> Mentee </option>
             {% else %}
-                <option value="mentor"> Mentor </option>
-                <option value="mentee" selected> Mentee </option> 
-            {% endif %}            
+            <option value="mentor"> Mentor </option>
+            <option value="mentee" selected> Mentee </option>
+            {% endif %}
         </select>
         <br>
 
-        <label for="preferred_matches">Preferred Matches</label>
-        <select id="preferred_matches" class="select2-hidden-accessible" style="width: 80%;" name="matches"
+        <label for="matches">Preferred Matches</label>
+        <select id="matches" class="select2-hidden-accessible" style="width: 80%;" name="matches"
             multiple="multiple">
             <optgroup label="mentors">
                 {% for mentor in mentors %}
@@ -48,16 +53,51 @@
                 <option value="{{ mentee.name }}" data-role="mentee">{{ mentee.name }}</option>
                 {% endfor %}
             </optgroup>
-                
+
         </select>
         <br>
+        <button type="submit"> Make Changes </button>
+        </form>
 
-        <button type="submit.large"> Make Changes </button>
         <nav class="link_nav">
-            <a href="/" style="margin-top: 20px;">Back to Home</a>
+            <a href="/">Back to Home</a>
+            <form action="/delete/{{ name }}" method="post" onsubmit="return confirm('Delete this person?')">
+                <input type="hidden" name="_method" value="DELETE">
+                <button type="submit" class="link_button"> Delete Person </button>
+            </form>
         </nav>
-    </form>
 
+    <script>
+        $(document).ready(function () {
+            $('#matches').select2({
+                placeholder: 'Select preferred matches...',
+                allowClear: true,
+                templateSelection: formatOption,
+                templateResult: formatOption,
+            });
+
+            function formatOption(option) {
+                if (!option.id) return option.text; // Skip placeholder
+
+                const role = $(option.element).data('role');
+                const color = role === 'mentor' ? '#4a90e2' : '#e26a93'; // blue or pink
+
+                const $option = $(`
+                    <span style="display:flex;align-items:center;gap:8px;color:black;">
+                        <span style="
+                        display:inline-block;
+                        width:10px;
+                        height:10px;
+                        border-radius:50%;
+                        background:${color};
+                        "></span>
+                        ${option.text}
+                    </span>
+                `);
+                return $option;
+            }
+        });
+    </script>
 </body>
 
 </html>

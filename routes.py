@@ -33,8 +33,7 @@ def match():
 @bp.route("/add", methods=["GET", "POST"])
 def add():
     if flask.request.method == 'GET':
-        mentors = flask.current_app.people.mentors
-        mentees = flask.current_app.people.mentees
+        mentors, mentees = flask.current_app.people.get_people_without_prefs()
         return flask.render_template("add.html", mentors=mentors, mentees=mentees)
     else:
         try:
@@ -42,15 +41,15 @@ def add():
             designation = flask.request.form['position']
             prefs = flask.request.form.getlist('matches')
             flask.current_app.people.add_person(name, designation, prefs)
+            flask.flash(f'Added {designation} {name} to MentorMatch', 'success')
         except (ValueError, TypeError) as e:
             flask.flash(e, 'error')
-        except FileNotFoundError:
-            flask.flash('Data file not found', 'warning')
         return flask.redirect(flask.url_for('main.home'))
 
 @bp.route("/view", methods=["GET"])
 def view():
     people = flask.current_app.people.get_people_with_prefs()
+    print(people)
     return flask.render_template("view.html", people=people)
 
 # TODO: Should this really be a GET?
@@ -67,9 +66,26 @@ def download():
 def edit(user_name):
     if flask.request.method == "GET":
         is_mentor = flask.request.args.get('is_mentor').lower() == 'true'
-        return flask.render_template("edit.html", name=user_name, is_mentor=is_mentor)
+        mentors, mentees = flask.current_app.people.get_people_without_prefs()
+        return flask.render_template("edit.html", name=user_name, is_mentor=is_mentor, mentors=mentors, mentees=mentees)
     else:
-        is_mentor = flask.request.form['position'] == 'mentor'
-        person = flask.current_app.people.get_from_name(user_name, is_mentor)
-        # TODO: Finish this stub
-        # Somehow need to recall old name/position to recall the Person object to update
+        new_name = flask.request.form['name']
+        new_is_mentor = flask.request.form['position'] == 'Mentor'
+        new_prefs = flask.request.form.getlist('matches')
+        print(flask.request.form)
+        old_name = user_name # TODO: Fix this, since name is editable
+        try:
+            flask.current_app.people.edit_person(old_name, new_name, new_is_mentor, new_prefs)
+            flask.flash('Profile updated', 'success')
+        except Exception as e:
+            flask.flash(str(e), 'error')
+        return flask.redirect(flask.url_for('main.home'))
+    
+@bp.route("/delete/<string:user_name>", methods=["POST"])
+def delete(user_name):
+    try:
+        flask.current_app.people.delete_person(user_name)
+        flask.flash(f'Person {user_name} deleted', 'success')
+    except Exception as e:
+        flask.flash(str(e), 'error')
+    return flask.redirect(flask.url_for('main.home'))

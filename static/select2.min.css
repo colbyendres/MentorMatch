@@ -435,7 +435,8 @@
 .select2-container--default .select2-results__group {
     cursor: default;
     display: block;
-    padding: 6px
+    padding: 6px;
+    color: black;
 }
 
 .select2-container--classic .select2-selection--single {
