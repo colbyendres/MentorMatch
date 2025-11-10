@@ -70,15 +70,15 @@ def edit(user_name):
         return flask.render_template("edit.html", name=user_name, is_mentor=is_mentor, mentors=mentors, mentees=mentees)
     else:
         new_name = flask.request.form['name']
-        new_is_mentor = flask.request.form['position'] == 'Mentor'
+        new_is_mentor = flask.request.form['position'] == 'mentor'
         new_prefs = flask.request.form.getlist('matches')
-        print(flask.request.form)
         old_name = user_name # TODO: Fix this, since name is editable
         try:
             flask.current_app.people.edit_person(old_name, new_name, new_is_mentor, new_prefs)
             flask.flash('Profile updated', 'success')
         except Exception as e:
             flask.flash(str(e), 'error')
+            raise e
         return flask.redirect(flask.url_for('main.home'))
     
 @bp.route("/delete/<string:user_name>", methods=["POST"])

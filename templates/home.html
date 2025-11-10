@@ -27,8 +27,12 @@
         <form action="/match" method="post">
             <button class="large" type="submit"><a> Get Started </a> </button>
         </form>
-        <button class="large"> <a href="/add"> Add Mentor/Mentee </a> </button>
-        <button class="large"> <a href="/view"> View Mentors/Mentees </a> </button>
+        <form action="/add" method="get">
+            <button class="large" type="submit"><a> Add Person </a> </button>
+        </form>
+        <form action="/view" method="get">
+            <button class="large" type="submit"><a> View People </a> </button>
+        </form>
     </div>
     <div class="hline"> </div>
     <h2 class="about_header"> What is MentorMatch? </h2>
@@ -43,7 +47,7 @@
         <ul class="weight_list">
             <li class="weight_bullet"> <img src="static/assets/icons/heart.tiff" class="mini_icon"> Both partners listed each other as preferred  <span> (2 points) </span>
             <li class="weight_bullet"> <img src="static/assets/icons/happy.tiff" class="mini_icon">  Exactly one partner listed another as preferred  <span> (1 point) </span>
-            <li class="weight_bullet"> <img src="static/assets/icons/meh.tiff" class="mini_icon">  Neither partner listed each other as preferred <span> (0 point) </span>
+            <li class="weight_bullet"> <img src="static/assets/icons/meh.tiff" class="mini_icon">  Neither partner listed each other as preferred <span> (0 points) </span>
         </ul>
     <p class="about_text">
         The full matching can be viewed via the "Getting Started" page. It can also be downloaded as a separate CSV file,

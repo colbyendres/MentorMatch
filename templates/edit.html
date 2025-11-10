@@ -41,7 +41,7 @@
         <br>
 
         <label for="matches">Preferred Matches</label>
-        <select id="matches" class="select2-hidden-accessible" style="width: 80%;" name="matches"
+        <select id="matches" class="js-example-basic-multiple" style="width: 80%;" name="matches"
             multiple="multiple">
             <optgroup label="mentors">
                 {% for mentor in mentors %}
@@ -60,42 +60,48 @@
         </form>
 
         <nav class="link_nav">
-            <a href="/">Back to Home</a>
+            <form action="/" method="get">
+                <button type="submit" class="link_button"> Return Home </button>
+            </form>
             <form action="/delete/{{ name }}" method="post" onsubmit="return confirm('Delete this person?')">
                 <input type="hidden" name="_method" value="DELETE">
-                <button type="submit" class="link_button"> Delete Person </button>
+                <button type="submit" class="link_button_delete"> Delete Person </button>
             </form>
         </nav>
 
     <script>
-        $(document).ready(function () {
-            $('#matches').select2({
-                placeholder: 'Select preferred matches...',
-                allowClear: true,
-                templateSelection: formatOption,
-                templateResult: formatOption,
+        $(document).ready(function() {
+            $("#matches").select2({
+                width: "80%",
+                closeOnSelect: true,
+                multiple: true,
+                dropdownPosition: 'below',
+                placeholder: "Select preferred matches",
+                templateSelection: function (data) {
+                    // Attach role to the selection object so we can style it
+                    let role = $(data.element).data("role");
+
+                    return $('<span class="tag-' + role + '">' + data.text + "</span>");
+                },
+                templateResult: function(option) {
+                    const role = $(option.element).data("role");
+                    if (!role) return option.text; // skip optgroup labels
+                    const color = role === 'mentor' ? "#5b8def" : "#ee4499";
+                    const $option = $(`
+                        <span style="display:flex;align-items:center;gap:8px;color:black;">
+                            <span style="
+                            display:inline-block;
+                            width:10px;
+                            height:10px;
+                            border-radius:50%;
+                            background:${color};
+                            "></span>
+                            ${option.text}
+                        </span>
+                    `);
+                    return $option;
+                }
             });
-
-            function formatOption(option) {
-                if (!option.id) return option.text; // Skip placeholder
-
-                const role = $(option.element).data('role');
-                const color = role === 'mentor' ? '#4a90e2' : '#e26a93'; // blue or pink
-
-                const $option = $(`
-                    <span style="display:flex;align-items:center;gap:8px;color:black;">
-                        <span style="
-                        display:inline-block;
-                        width:10px;
-                        height:10px;
-                        border-radius:50%;
-                        background:${color};
-                        "></span>
-                        ${option.text}
-                    </span>
-                `);
-                return $option;
-            }
         });
     </script>
 </body>

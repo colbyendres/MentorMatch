@@ -366,6 +366,8 @@ sub {
 ul.match-list {
     list-style: none;
     padding: 0;
+    margin-left: 5%;
+    margin-right: 5%;
 }
 
 li.match-item {
@@ -376,6 +378,7 @@ li.match-item {
     position: relative;
     border-radius: 0%;
     border: none;
+    padding-left: 0px;
 }
 
 .match-item:hover {
@@ -443,17 +446,14 @@ li.match-item {
 
 .connection.high::before {
     background-color: #f575d7;
-    /* pink */
 }
 
 .connection.medium::before {
     background-color: rgb(121, 255, 125);
-    /* amber */
 }
 
 .connection.low::before {
     background-color: #ffe45f;
-    /* red */
 }
 
 .happy_icon {
@@ -463,6 +463,10 @@ li.match-item {
     z-index: 1;
 }
 
+.happy_icon:hover {
+    transform: scale(1.05);
+}
+
 .prefer-span {
     font-style: italic;
     color: rgb(223, 222, 222);
@@ -470,13 +474,13 @@ li.match-item {
     font-size: smaller;
 }
 
-.person-box.label {
+.person-box {
     background: transparent;
-    border: none;
-    font-weight: 600;
-    text-transform: uppercase;
     color: white;
     box-shadow: none;
+    border: 2px solid white;
+    border-radius: 8px;
+    padding: 0.5em 1em 0.5em 1em;
 }
 
 .match-container {
@@ -486,13 +490,22 @@ li.match-item {
 
 .match-header {
     display: flex;
+    align-items: center;
     justify-content: space-between;
-    padding: 0 1.5rem;
-    margin-bottom: 0.5rem;
+    position: relative;
+    border-radius: 0%;
+    border: none;
     color: white;
+    text-decoration: underline;
     font-size: x-large;
     font-weight: bolder;
-    text-decoration: underline;
+    margin-bottom: 5px;
+}
+
+.match-header:hover {
+    box-shadow: none;
+    transform:none;
+
 }
 
 .header-col {
@@ -514,13 +527,19 @@ li.match-item {
     border: none;
 }
 
-.link_button {
+.link_button,
+.link_button_delete {
     display: inline;
     margin-bottom: 0px;
     background: none;
     border: none;
     cursor: pointer;
     text-decoration: underline;
+}
+
+.link_button_delete:hover{
+    background-color: #ee5f70;
+    box-shadow: #ff3d53
 }
 
 .weight_bullet {
@@ -530,6 +549,10 @@ li.match-item {
     gap: 5em; /* horizontal spacing */
     text-align: center;
     border: none;
+}
+
+.weight_bullet:hover {
+    box-shadow: none;
 }
 
 .weight_list {

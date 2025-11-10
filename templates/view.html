@@ -19,11 +19,15 @@
     {% endwith %}
     <h1>People</h1>
     <div class="match-container">
-        <div class="match-header">
+        <!-- <div class="match-header">
             <span class="header-col">Mentor</span>
             <span class="header-col">Mentee</span>
-        </div>
+        </div> -->
         <ul class="match-list">
+            <li class="match-header"> 
+                <span class="header-col"> Mentors </span>
+                <span class="header-col"> Mentees </span>
+            </li>
             {% for mentor, mentee, mentor_prefs, mentee_prefs in people %}
             <li class="match-item">
                 {% if mentor %}

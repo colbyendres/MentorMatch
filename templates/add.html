@@ -3,8 +3,8 @@
 
 <head>
     <title>MentorMatch | Add Person</title>
-    <link rel="stylesheet" href="static/main.css">
-    <link rel="stylesheet" href="static/select2.min.css"/>
+    <link rel="stylesheet" href="{{ url_for('static', filename='main.css')}}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='select2.min.css') }}" />
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 </head>
@@ -53,38 +53,45 @@
         <br>
 
         <button type="submit.large">Add Person</button>
-        <a href="/" style="margin-top: 20px;">Back to Home</a>
     </form>
 
-    <script>
-        $(document).ready(function () {
-            $('#preferred_matches').select2({
-                placeholder: 'Select preferred matches...',
-                allowClear: true,
-                templateSelection: formatOption,
-                templateResult: formatOption,
+    <nav class="link_nav">
+        <a href="/"> Back to Home</a>
+    </nav>
+
+ <script>
+        $(document).ready(function() {
+            $("#matches").select2({
+                width: "80%",
+                closeOnSelect: true,
+                multiple: true,
+                dropdownPosition: 'below',
+                placeholder: "Select preferred matches",
+                templateSelection: function (data) {
+                    // Attach role to the selection object so we can style it
+                    let role = $(data.element).data("role");
+
+                    return $('<span class="tag-' + role + '">' + data.text + "</span>");
+                },
+                templateResult: function(option) {
+                    const role = $(option.element).data("role");
+                    if (!role) return option.text; // skip optgroup labels
+                    const color = role === 'mentor' ? "#5b8def" : "#ee4499";
+                    const $option = $(`
+                        <span style="display:flex;align-items:center;gap:8px;color:black;">
+                            <span style="
+                            display:inline-block;
+                            width:10px;
+                            height:10px;
+                            border-radius:50%;
+                            background:${color};
+                            "></span>
+                            ${option.text}
+                        </span>
+                    `);
+                    return $option;
+                }
             });
-
-            function formatOption(option) {
-                if (!option.id) return option.text; // Skip placeholder
-
-                const role = $(option.element).data('role');
-                const color = role === 'mentor' ? '#4a90e2' : '#e26a93'; // blue or pink
-
-                const $option = $(`
-      <span style="display:flex;align-items:center;gap:8px;color:black;">
-        <span style="
-          display:inline-block;
-          width:10px;
-          height:10px;
-          border-radius:50%;
-          background:${color};
-        "></span>
-        ${option.text}
-      </span>
-    `);
-                return $option;
-            }
         });
     </script>
 </body>
