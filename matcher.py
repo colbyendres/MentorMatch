@@ -7,7 +7,7 @@ from config import Config
 from sqlalchemy import func
 from sqlalchemy.exc import SQLAlchemyError
 
-from itertools import zip_longest, chain
+from itertools import zip_longest
 from scipy.optimize import linear_sum_assignment
 
 class PeopleInfo:
@@ -21,6 +21,7 @@ class PeopleInfo:
         self.db_index = {}  # row/col in pref matrix -> db index
         self.num_mentors = 0
         self.num_mentees = 0
+        self.match_invalidated = True
 
     def _map_to_matrix(self):
         """
@@ -32,6 +33,7 @@ class PeopleInfo:
             matrix_index (dict): db id to matrix row/col number pairing
         """
         all_people = self.db.query(Person).all()
+        self.num_mentors, self.num_mentees = 0,0
         for person in all_people:
             if person.is_mentor:
                 self.matrix_index[person.id] = (
@@ -69,7 +71,8 @@ class PeopleInfo:
             else:
                 # P1 is a mentee, so P2 must be a mentor
                 mat[p2_idx][p1_idx] += 1
-
+                
+        self.match_invalidated = False
         return mat
 
     def add_person(self, name: str, position: str, prefs: list[str], email=None):
@@ -103,6 +106,8 @@ class PeopleInfo:
             self.matrix_index[p.id] = (PeopleInfo.COL, self.num_mentees)
             self.db_index[(PeopleInfo.COL, self.num_mentees)] = p.id
             self.num_mentees += 1
+            
+        self.match_invalidated = True
 
     def delete_person(self, name):
         try:
@@ -123,6 +128,7 @@ class PeopleInfo:
         # NOTE: We could be more selective, keeping people who's status differs from the deleted person
         self.matrix_index = {}
         self.db_index = {}
+        self.match_invalidated = True
 
     def edit_person(self, old_name, new_name, new_is_mentor, new_prefs):
         try:
@@ -140,12 +146,15 @@ class PeopleInfo:
             prefs = [Preference(preferrer_id=p.id, preferee_id=id[0])
                      for id in pref_db_ids]
             self.db.add_all(prefs)
+            self.db.commit()
         except ValueError as e:
             # Thrown by get_from_name, no need to rollback
             raise e
         except SQLAlchemyError as e:
             self.db.rollback()
             raise e
+        
+        self.match_invalidated = True
 
     def get_people_without_prefs(self):
         mentors, mentees = [], []
@@ -180,9 +189,11 @@ class PeopleInfo:
             mentor_names, mentee_names (list[str], list[str]): names of people
         """
         assert len(mentor_idx) == len(mentee_idx)
-        db_ids = [self.db_index[idx] for idx in chain(mentor_idx, mentee_idx)]
-        people = self.db.query(Person.name).filter_by(Person.id.in_(db_ids)).order_by(
+        db_ids = [self.db_index[(PeopleInfo.ROW, idx)] for idx in mentor_idx]
+        db_ids.extend([self.db_index[(PeopleInfo.COL, idx)] for idx in mentee_idx])
+        people = self.db.query(Person.name).filter(Person.id.in_(db_ids)).order_by(
             func.array_position(db_ids, Person.id)).all()
+        people = [p for (p,) in people]
         n = len(people) // 2
         return people[:n], people[n:]
 
