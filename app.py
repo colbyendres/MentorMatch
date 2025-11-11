@@ -4,7 +4,8 @@ from routes import bp as routes_bp
 from matcher import Matcher, PeopleInfo
 from models import db
 
-def start_app():    
+
+def start_app():
     app = Flask(__name__)
     app.secret_key = Config.SECRET_KEY
     app.config["SQLALCHEMY_DATABASE_URI"] = Config.DATABASE_URL
@@ -17,5 +18,6 @@ def start_app():
         app.matcher = Matcher(app.people)
     app.register_blueprint(routes_bp)
     return app
+
 
 flask_app = start_app()
