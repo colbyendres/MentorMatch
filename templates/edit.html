@@ -102,7 +102,33 @@
                     return $option;
                 }
             });
+
+        function filterOptions() {
+            const role = $("#position").val();   // either "mentor" or "mentee"
+
+            $("#matches option").each(function () {
+                const optionRole = $(this).data("role");
+
+                if (optionRole === role) {
+                    // Same role. Hide from dropdown.
+                    $(this).attr("disabled", "disabled");
+                } else {
+                    $(this).removeAttr("disabled");
+                }
+            });
+
+            // Force Select2 to refresh the dropdown with new state
+            $("#matches").trigger("change.select2");
+        }
+
+        // Initial filtering
+        filterOptions();
+
+        // Filter again when the role changes
+        $("#position").on("change", function () {
+            filterOptions();
         });
+    });
     </script>
 </body>
 

@@ -431,7 +431,12 @@
 }
 
 .select2-container--default .select2-results__option--disabled {
-    color: #999
+    opacity: 0.2;
+}
+
+.select2-container--default .select2-results__option--disabled:hover {
+    transform: none;
+    box-shadow: none;
 }
 
 .select2-container--default .select2-results__option--selected {
