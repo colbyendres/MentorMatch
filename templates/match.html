@@ -19,7 +19,14 @@
         </div>
     {% endif %}
     {% endwith %}
-    <h1>Results</h1>
+    <header class="page-header">
+        <h1>Results</h1>
+        <form action="/match?retry_match=true" method="POST" class="refresh-form">
+            <button type="submit" class="refresh-btn" title="Regenerate results">
+                ⟳
+            </button>
+        </form>
+    </header>
     <ul class="match-list">
         {% for mentor, mentee, score in matches %}
         <li class="match-item">

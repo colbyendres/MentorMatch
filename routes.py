@@ -12,23 +12,18 @@ def root():
 def home():
     return flask.render_template("home.html")
 
-@bp.route("/match", methods=["GET", "POST"])
+@bp.route("/match", methods=["POST"])
 def match():
-    if flask.request.method == 'POST':
-        try:
-            matches = flask.current_app.matcher.match()
-            total_score = sum([int(triplet[2]) for triplet in matches])
-            happiness_score = int(100 * (total_score / (2.0 * len(matches))))
-            flask.flash(f'Match found with {happiness_score}% satisfaction', 'success')
-            return flask.render_template("match.html", matches=matches)
-        except (ValueError) as e:
-            flask.flash(str(e), 'error')
-            return flask.render_template("match.html", matches=[])
-    else:
-        matches = flask.current_app.matcher.get_cached_matches()
-        if not matches:
-            flask.flash('No matching found in cache', 'warning')
+    try:
+        retry_match = flask.request.args.get('retry_match', False) == 'true'
+        matches = flask.current_app.matcher.match(force_rematch=retry_match)
+        total_score = sum([int(triplet[2]) for triplet in matches])
+        happiness_score = int(100 * (total_score / (2.0 * len(matches))))
+        flask.flash(f'Match found with {happiness_score}% satisfaction', 'success')
         return flask.render_template("match.html", matches=matches)
+    except (ValueError) as e:
+        flask.flash(str(e), 'error')
+        return flask.render_template("match.html", matches=[])
     
 @bp.route("/add", methods=["GET", "POST"])
 def add():

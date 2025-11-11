@@ -300,6 +300,35 @@ p.content {
     text-align: justify;
 }
 
+.page-header {
+    position: relative;
+    text-align: center;
+    margin-bottom: 20px;
+    margin-left: 5%;
+    margin-right: 5%;
+}
+
+.refresh-form {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    margin-bottom: 0px;
+    border: none;
+}
+
+.refresh-btn {
+    background: none;
+    border: none;
+    font-size: 1.4rem;
+    cursor: pointer;
+    width: auto;
+}
+
+.refresh-btn:hover {
+    opacity: 0.7;
+}
+
 h1,
 h2,
 h3,
