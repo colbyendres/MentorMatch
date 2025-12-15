@@ -1,8 +1,8 @@
 import numpy as np
 import csv
 
-from models import Person, Preference
-from config import Config
+from app.models import Person, Preference
+from app.config import Config
 
 from sqlalchemy import func
 from sqlalchemy.exc import SQLAlchemyError
@@ -171,7 +171,7 @@ class PeopleInfo:
         # Invalidate mapping data
         # NOTE: We cannot simply remove the person from the dictionary
         # This breaks the sequential nature of the values (i.e. the row/col indices)
-        # NOTE: We could be more selective, keeping people who's status differs from the deleted person
+        # NOTE: We could be more selective, keeping people whose status differs from the deleted person
         Config.logger.debug(f'Deleted person {name} with id {person.id}, invalidating matrix')
         self.matrix_index = {}
         self.db_index = {}

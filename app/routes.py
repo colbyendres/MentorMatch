@@ -51,7 +51,6 @@ def add():
 @bp.route("/view", methods=["GET"])
 def view():
     people = flask.current_app.people.get_people_with_prefs()
-    print(people)
     return flask.render_template("view.html", people=people)
 
 # TODO: Should this really be a GET?
@@ -85,7 +84,6 @@ def edit(user_name):
             flask.flash('Profile updated', 'success')
         except Exception as e:
             flask.flash(str(e), 'error')
-            raise e
         return flask.redirect(flask.url_for('main.home'))
 
 

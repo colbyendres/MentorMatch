@@ -1,0 +1,15 @@
+[project]
+name = "MentorMatch"
+version = "1.0.0"
+description = "Graph-based mentor matching service"
+dependencies = [
+    "numpy<2.0.0",
+    "psycopg2",
+    "flask",
+    "flask-sqlalchemy",
+    "scipy",
+    "gunicorn",
+    "dotenv"
+]
+readme = "README.md"
+
