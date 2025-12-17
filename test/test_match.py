@@ -1,12 +1,7 @@
-import os
-from dotenv import load_dotenv
-from app.matcher import Matcher
-
 import pytest
-from sqlalchemy import create_engine, text
-from sqlalchemy.orm import sessionmaker
-from test_utils import add_people_with_prefs
 
+from app.matcher import Matcher
+from conftest import add_people_with_prefs, session
 
 class TestMatching:
     def test_perfect_match(self, session):
@@ -34,14 +29,14 @@ class TestMatching:
 
     def test_imperfect_match(self, session):
         IMPERFECT_PAIRS = [
-            {'name': 'Alice', 'is_mentor': True},
+            {'name': 'Jeff', 'is_mentor': True},
             {'name': 'Bob', 'is_mentor': True},
             {'name': 'Charlie', 'is_mentor': False},
             {'name': 'Dan', 'is_mentor': False}
         ]
         PREFS = [
-            ('Alice', 'Charlie'),
-            ('Charlie', 'Alice'),
+            ('Jeff', 'Charlie'),
+            ('Charlie', 'Jeff'),
             ('Bob', 'Dan'),
             # Missing Dan -> Bob pref
         ]
@@ -49,7 +44,7 @@ class TestMatching:
         matcher = Matcher(p_info)
         matching = matcher.match()
         for mentor, mentee, score in matching:
-            if mentor == 'Alice':
+            if mentor == 'Jeff':
                 assert score == 2 and mentee == 'Charlie'
             else:
                 assert score == 1 and mentee == 'Dan'
@@ -59,6 +54,7 @@ class TestMatching:
             {'name': 'Alice', 'is_mentor': True},
             {'name': 'Bob', 'is_mentor': True},
             {'name': 'Charlie', 'is_mentor': False},
+            # Two mentors, one mentee
         ]
         PREFS = [
             ('Alice', 'Charlie'),
@@ -69,24 +65,19 @@ class TestMatching:
         matcher = Matcher(p_info)
         with pytest.raises(ValueError, match=r'Number of mentees and mentors differ'):
             matching = matcher.match()
-
-
-@pytest.fixture
-def session():
-    load_dotenv()
-    DB_URL = os.environ.get('DATABASE_URL').replace(
-        'postgres://', 'postgresql://')
-    engine = create_engine(DB_URL)
-    conn = engine.connect()
-    # Ensure the test tables appear before the prod tables in search
-    transaction = conn.begin()
-    conn.execute(text('SET search_path TO test_schema'))
-
-    SessionLocal = sessionmaker(bind=conn)
-    session = SessionLocal()
-
-    yield session
-
-    session.close()
-    transaction.rollback()
-    conn.close()
+            
+    def test_interrole_match_fails(self, session):
+        INELIGIBLE_PAIRS = [
+            {'name': 'Alice', 'is_mentor': True},
+            {'name': 'Bob', 'is_mentor': True},
+            {'name': 'Charlie', 'is_mentor': False},
+            {'name': 'Dan', 'is_mentor': False}
+        ]
+        PREFS = [
+            ('Alice', 'Bob'),
+            ('Bob', 'Alice')
+        ]
+        p_info = add_people_with_prefs(session, INELIGIBLE_PAIRS, PREFS)
+        matcher = Matcher(p_info)
+        with pytest.raises(ValueError, match=r'Relationship between members of the same status'):
+            matching = matcher.match()

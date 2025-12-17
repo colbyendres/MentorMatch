@@ -1,6 +1,6 @@
 import flask
 import os
-from config import Config
+from app.config import Config
 
 bp = flask.Blueprint('main', __name__)
 

@@ -1,12 +1,11 @@
 import pytest
-
 from sqlalchemy import create_engine, text
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import scoped_session, sessionmaker
 
-from app.models import Person, Preference, db
-from app.matcher import PeopleInfo
-from app.app import start_app
+from app.app import start_app, db
 from app.config import Config
+from app.models import Preference, Person
+from app.matcher import PeopleInfo
 
 def add_people_with_prefs(session, people, prefs):
     people_ids = {}
@@ -25,47 +24,46 @@ def add_people_with_prefs(session, people, prefs):
     p_info = PeopleInfo(session)
     return p_info
 
-
-@pytest.fixture
-def session():
+@pytest.fixture(scope="session")
+def test_engine():
+    """Create a test database engine with test_schema."""
     engine = create_engine(Config.DATABASE_URL)
-    connection = engine.connect()
-
-    transaction = connection.begin()
-    connection.execute(text("SET search_path TO test_schema"))
-    SessionLocal = sessionmaker(bind=connection)
-    session = SessionLocal()
-
-    yield session
-
-    session.close()
-    if connection.in_transaction():
-        transaction.rollback()
-    connection.close()
+    yield engine
 
 
-@pytest.fixture
-def connection():
-    engine = create_engine(Config.DATABASE_URL, execution_options={
-                           'schema_translate_map': {None: 'test_schema'}})
-    connection = engine.connect()
-
-    transaction = connection.begin()
-
-    yield connection
-
-    transaction.rollback()
-    connection.close()
+@pytest.fixture(scope="session")
+def app(test_engine):
+    """Create and configure a test Flask app instance."""
+    test_app = start_app()
+    # Override database session to use test
+    with test_app.app_context():
+        db.session.execute(text("SET search_path TO test"))    
+        yield test_app
 
 
-@pytest.fixture
-def client():
-     # Set the Testing configuration prior to creating the Flask application
-    flask_app = start_app()
-    flask_app.config['TESTING'] = True
+@pytest.fixture(scope="function")
+def client(app):
+    """Create a test client for the Flask app."""
+    return app.test_client()
+
+@pytest.fixture(scope="function")
+def session(app, test_engine):
+    """Create a transactional database session that rolls back after each test."""
     
-    # Create a test client using the Flask application configured for testing
-    with flask_app.test_client() as testing_client:
-        # Establish an application context
-        with flask_app.app_context():
-            yield testing_client  # this is where the testing happens!
+    connection = test_engine.connect()
+    transaction = connection.begin()
+    connection.execute(text("SET search_path TO test"))
+    
+    session_factory = sessionmaker(bind=connection)
+    test_session = scoped_session(session_factory)
+    with app.app_context():
+        db.session = test_session
+        
+        yield test_session
+        
+        # Rollback the transaction
+        test_session.remove()
+        if connection.in_transaction():
+            transaction.rollback()
+    
+    connection.close()
