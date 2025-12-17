@@ -74,6 +74,9 @@ class PeopleInfo:
             # TODO: Handle case when mapping isn't a bijection
             raise ValueError('Number of mentees and mentors differ!')
 
+        if self.num_mentors == 0:
+            raise ValueError('No mentors or mentees available to match')
+        
         # Indices are valid, construct the pref matrix
         mat = np.zeros((self.num_mentors, self.num_mentees))
         prefs = self.db.query(Preference).all()
