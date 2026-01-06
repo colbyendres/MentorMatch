@@ -5,7 +5,7 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 from app.app import start_app, db
 from app.config import Config
 from app.models import Preference, Person
-from app.matcher import PeopleInfo
+from app.matcher import PeopleInfo, Matcher
 
 def add_people_with_prefs(session, people, prefs):
     people_ids = {}
@@ -32,19 +32,21 @@ def test_engine():
 
 
 @pytest.fixture(scope="session")
-def app(test_engine):
+def app():
     """Create and configure a test Flask app instance."""
     test_app = start_app()
     # Override database session to use test
     with test_app.app_context():
-        db.session.execute(text("SET search_path TO test"))    
         yield test_app
 
 
 @pytest.fixture(scope="function")
-def client(app):
+def client(app, session):
     """Create a test client for the Flask app."""
-    return app.test_client()
+    with app.app_context():
+        app.people = PeopleInfo(session)
+        app.matcher = Matcher(app.people)
+        yield app.test_client()
 
 @pytest.fixture(scope="function")
 def session(app, test_engine):
@@ -56,6 +58,10 @@ def session(app, test_engine):
     
     session_factory = sessionmaker(bind=connection)
     test_session = scoped_session(session_factory)
+    
+    # Override commit and rollback to prevent them from closing the transaction
+    test_session.commit = lambda: test_session.flush()
+    test_session.rollback = lambda: test_session.flush()
     with app.app_context():
         db.session = test_session
         
@@ -63,7 +69,7 @@ def session(app, test_engine):
         
         # Rollback the transaction
         test_session.remove()
-        if connection.in_transaction():
+        if transaction.is_active:
             transaction.rollback()
     
     connection.close()

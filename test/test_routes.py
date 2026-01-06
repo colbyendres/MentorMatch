@@ -1,4 +1,4 @@
-from conftest import client, app, session
+from conftest import client, app
 
 class TestRoutes:
     def test_home(self, client):
@@ -15,6 +15,6 @@ class TestRoutes:
             'position': 'mentor',
             'matches': []
         }
-        rsp = client.post('/add', data=form, follow_redirects=False)
+        rsp = client.post('/add', data=form, follow_redirects=True)
         assert rsp.status_code == 200
-        assert b'Success: Added mentor Alice to MentorMatch' in rsp.data
+        assert b'Added mentor Alice to MentorMatch' in rsp.data

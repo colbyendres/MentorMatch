@@ -1,8 +1,8 @@
 import pytest
 
 from app.models import Person, Preference
-from conftest import session
 from sqlalchemy.exc import IntegrityError
+from conftest import session
 
 class TestPeople:
     def test_create_without_prefs(self, session):
