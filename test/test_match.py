@@ -29,14 +29,14 @@ class TestMatching:
 
     def test_imperfect_match(self, session):
         IMPERFECT_PAIRS = [
-            {'name': 'Jeff', 'is_mentor': True},
+            {'name': 'Alice', 'is_mentor': True},
             {'name': 'Bob', 'is_mentor': True},
             {'name': 'Charlie', 'is_mentor': False},
             {'name': 'Dan', 'is_mentor': False}
         ]
         PREFS = [
-            ('Jeff', 'Charlie'),
-            ('Charlie', 'Jeff'),
+            ('Alice', 'Charlie'),
+            ('Charlie', 'Alice'),
             ('Bob', 'Dan'),
             # Missing Dan -> Bob pref
         ]
@@ -44,7 +44,7 @@ class TestMatching:
         matcher = Matcher(p_info)
         matching = matcher.match()
         for mentor, mentee, score in matching:
-            if mentor == 'Jeff':
+            if mentor == 'Alice':
                 assert score == 2 and mentee == 'Charlie'
             else:
                 assert score == 1 and mentee == 'Dan'
