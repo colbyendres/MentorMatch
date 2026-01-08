@@ -1,0 +1,23 @@
+[project]
+name = "MentorMatch"
+version = "1.0.0"
+authors = [ {name = "Colby Endres", email="colby.endres2@gmail.com"} ]
+description = "Graph-based mentor matching service"
+dependencies = [
+    "numpy<2.0.0",
+    "psycopg2",
+    "flask",
+    "flask-sqlalchemy",
+    "scipy",
+    "gunicorn",
+    "dotenv"
+]
+readme = "README.md"
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-flask-sqlalchemy",
+    "pytest-cov"
+]
+

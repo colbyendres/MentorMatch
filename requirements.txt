@@ -1,7 +1,0 @@
-numpy<2.0.0
-psycopg2
-flask
-flask-sqlalchemy
-scipy
-gunicorn
-dotenv

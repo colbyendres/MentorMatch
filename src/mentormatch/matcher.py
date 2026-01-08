@@ -1,8 +1,8 @@
 import numpy as np
 import csv
 
-from models import Person, Preference
-from config import Config
+from mentormatch.models import Person, Preference
+from mentormatch.config import Config
 
 from sqlalchemy import func
 from sqlalchemy.exc import SQLAlchemyError
@@ -148,8 +148,9 @@ class PeopleInfo:
             Config.logger.info(f'Added mentee {name} with id {p.id}')
 
         self.matrix_valid = False
+        self.matrix = None
 
-    def delete_person(self, name):
+    def delete_person(self, name: str):
         """
         Removes person from database. This invalidates the cached matrix and the indices
 
@@ -174,21 +175,23 @@ class PeopleInfo:
         # Invalidate mapping data
         # NOTE: We cannot simply remove the person from the dictionary
         # This breaks the sequential nature of the values (i.e. the row/col indices)
-        # NOTE: We could be more selective, keeping people who's status differs from the deleted person
+        # NOTE: We could be more selective, keeping people whose status differs from the deleted person
         Config.logger.debug(f'Deleted person {name} with id {person.id}, invalidating matrix')
         self.matrix_index = {}
         self.db_index = {}
         self.matrix_valid = False
         self.indices_valid = False
+        self.matrix = None
 
-    def edit_person(self, old_name, new_name, new_is_mentor, new_prefs):
+    def edit_person(self, old_name: str, new_name: str, new_is_mentor: bool, new_prefs: list[str]):
         """
         Adds person to database. This invalidates the cached matrix
-
+        If the new values are invalid, the edit is cancelled and the original data is unchanged
+        
         Args:
             old_name (str): original name (used for recovering Person object to edit)
             new_name (str): person name
-            new_position (str): person position (either mentor or mentee)
+            new_is_mentor (bool): person position
             new_prefs (list): list of names of preferred partners            
         Returns:
             None
@@ -198,15 +201,21 @@ class PeopleInfo:
             p.name = new_name
             p.is_mentor = new_is_mentor
 
+            # Write new preferences
+            pref_people = self.db.query(Person).filter(
+                Person.name.in_(new_prefs)).all()
+            
+            prefs = []
+            for pref in pref_people:
+                # Sanity check- ensure we only have preferences of the opposite status
+                # Refuse the edit otherwise
+                if pref.is_mentor == p.is_mentor:
+                    raise ValueError(f'Preference cannot exist between two {'mentors' if p.is_mentor else 'mentees'}!')
+                prefs.append(Preference(preferrer_id=p.id, preferee_id=pref.id))
+            
             # Delete all outgoing preferences for p
             # We don't need to touch incoming preferences, since p's id is unchanged on edit
             Preference.query.filter_by(preferrer_id=p.id).delete()
-
-            # Write new preferences
-            pref_db_ids = self.db.query(Person.id).filter(
-                Person.name.in_(new_prefs)).all()
-            prefs = [Preference(preferrer_id=p.id, preferee_id=id[0])
-                     for id in pref_db_ids]
             self.db.add_all(prefs)
             self.db.commit()
         except ValueError as e:
@@ -217,6 +226,7 @@ class PeopleInfo:
             raise e
 
         self.matrix_valid = False
+        self.matrix = None
 
     def get_people_without_prefs(self):
         """
@@ -276,7 +286,7 @@ class PeopleInfo:
         n = len(people) // 2
         return people[:n], people[n:]
 
-    def get_from_name(self, user_name):
+    def get_from_name(self, user_name: str):
         """
         Retrieve person by name
 
@@ -312,6 +322,7 @@ class Matcher:
         """
         # Are we allowed to reuse the cached matching?
         if not force_rematch and self.matches and self.people_info.matrix_valid:
+            Config.logger.debug('Returning cached matching')
             return self.matches
 
         mat = self.people_info.construct_matrix()
