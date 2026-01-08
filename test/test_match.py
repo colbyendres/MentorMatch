@@ -1,7 +1,7 @@
 import pytest
 
-from app.matcher import Matcher
-from conftest import add_people_with_prefs, session
+from mentormatch.matcher import Matcher
+from conftest import add_people_with_prefs
 
 class TestMatching:
     def test_perfect_match(self, session):

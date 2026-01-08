@@ -2,10 +2,10 @@ import pytest
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import scoped_session, sessionmaker
 
-from app.app import start_app, db
-from app.config import Config
-from app.models import Preference, Person
-from app.matcher import PeopleInfo, Matcher
+from mentormatch.app import start_app, db
+from mentormatch.config import Config
+from mentormatch.models import Preference, Person
+from mentormatch.matcher import PeopleInfo, Matcher
 
 def add_people_with_prefs(session, people, prefs):
     people_ids = {}
@@ -73,3 +73,20 @@ def session(app, test_engine):
             transaction.rollback()
     
     connection.close()
+    
+@pytest.fixture()
+def seed_data(session):
+    PERFECT_PAIRS = [
+        {'name': 'Alice', 'is_mentor': True},
+        {'name': 'Bob', 'is_mentor': True},
+        {'name': 'Charlie', 'is_mentor': False},
+        {'name': 'Dan', 'is_mentor': False}
+    ]
+    PREFS = [
+        ('Alice', 'Charlie'),
+        ('Charlie', 'Alice'),
+        ('Bob', 'Dan'),
+        ('Dan', 'Bob')
+    ]
+    return add_people_with_prefs(session, PERFECT_PAIRS, PREFS)
+    
