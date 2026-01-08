@@ -1,5 +1,5 @@
 # MentorMatch
-![MentorMatch logo](app/static/assets/mentormatch.png)
+<img src="src/mentormatch/static/assets/mentormatch.png" alt="MentorMatch logo" width=60%>
 
 ## What is MentorMatch?
 MentorMatch is a service designed to pair mentors to mentees. Each user can create a customizable profile,
