@@ -5,9 +5,9 @@ name: MentorMatch
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main"]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main" ] 
 
 jobs:
   build:
@@ -29,6 +29,10 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install flake8 pytest
         if [ -f "pyproject.toml" ]; then pip install -e .; fi
+    - name: Create .env file
+      run: |
+        echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env
+        echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
