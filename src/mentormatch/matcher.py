@@ -210,7 +210,7 @@ class PeopleInfo:
                 # Sanity check- ensure we only have preferences of the opposite status
                 # Refuse the edit otherwise
                 if pref.is_mentor == p.is_mentor:
-                    raise ValueError(f'Preference cannot exist between two {'mentors' if p.is_mentor else 'mentees'}!')
+                    raise ValueError(f"Preference cannot exist between two {'mentors' if p.is_mentor else 'mentees'}!")
                 prefs.append(Preference(preferrer_id=p.id, preferee_id=pref.id))
             
             # Delete all outgoing preferences for p
