@@ -27,7 +27,6 @@ class Logger:
 class Config:
     load_dotenv()
     SECRET_KEY = os.environ.get('SECRET_KEY')
-    DATABASE_URL = os.environ.get('DATABASE_URL').replace(
-        'postgres://', 'postgresql://')
+    DATABASE_URL = os.environ.get('DATABASE_URL')
     REMOTE_MATCH_FILE = 'data/match.csv'
     logger = Logger()

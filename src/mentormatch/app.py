@@ -1,8 +1,8 @@
 from flask import Flask
-from app.config import Config
-from app.routes import bp as routes_bp
-from app.matcher import Matcher, PeopleInfo
-from app.models import db
+from mentormatch.config import Config
+from mentormatch.routes import bp as routes_bp
+from mentormatch.matcher import Matcher, PeopleInfo
+from mentormatch.models import db
 
 
 def start_app():
