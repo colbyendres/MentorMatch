@@ -1,6 +1,6 @@
 import flask
 import os
-from config import Config
+from mentormatch.config import Config
 
 bp = flask.Blueprint('main', __name__)
 
@@ -18,8 +18,8 @@ def home():
 @bp.route("/match", methods=["POST"])
 def match():
     try:
-        retry_match = flask.request.args.get('retry_match', False) == 'true'
-        matches = flask.current_app.matcher.match(force_rematch=retry_match)
+        force_rematch = flask.request.args.get('force_rematch', False) == 'true'
+        matches = flask.current_app.matcher.match(force_rematch)
         total_score = sum(int(triplet[2]) for triplet in matches)
         happiness_score = int(100 * (total_score / (2.0 * len(matches))))
         flask.flash(
@@ -51,7 +51,6 @@ def add():
 @bp.route("/view", methods=["GET"])
 def view():
     people = flask.current_app.people.get_people_with_prefs()
-    print(people)
     return flask.render_template("view.html", people=people)
 
 # TODO: Should this really be a GET?
@@ -85,7 +84,7 @@ def edit(user_name):
             flask.flash('Profile updated', 'success')
         except Exception as e:
             flask.flash(str(e), 'error')
-            raise e
+            flask.redirect(flask.url_for('main.home'), code=404)
         return flask.redirect(flask.url_for('main.home'))
 
 
@@ -96,4 +95,5 @@ def delete(user_name):
         flask.flash(f'Person {user_name} deleted', 'success')
     except Exception as e:
         flask.flash(str(e), 'error')
+        flask.redirect(flask.url_for('main.home'), code=404)
     return flask.redirect(flask.url_for('main.home'))
