@@ -2,46 +2,52 @@
 <html>
 <head>
     <title>MentorMatch | View People</title>
-    <link rel="stylesheet" href="static/main.css">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
-<body>
+<body class="min-h-screen bg-linear-45 from-purple-500 to-purple-200">
     {% with message = get_flashed_messages(with_categories=True) %}
     {% if message %}
-        <div class="flash">
+        <div class="max-w-4xl mx-auto mb-4 p-4 rounded-lg {% if message[0][0] == 'error' %}bg-red-100 border border-red-400{% elif message[0][0] == 'warning' %}bg-yellow-100 border border-yellow-400{% endif %}">
             {% if message[0][0] == "error" %}
-            <strong style="color: #ff0000"> Error: </strong> 
+            <strong class="text-red-700 font-bold"> Error: </strong> 
             {% elif message[0][0] == "warning" %}
-            <strong style="color: #f9e71f"> Warning: </strong>
+            <strong class="text-yellow-700 font-bold"> Warning: </strong>
             {% endif %}
-            {{message[0][1]}}
+            <span class="{% if message[0][0] == 'error' %}text-red-700{% else %}text-yellow-700{% endif %}">{{message[0][1]}}</span>
         </div>
     {% endif %}
     {% endwith %}
-    <h1>People</h1>
-    <div class="match-container">
-        <!-- <div class="match-header">
-            <span class="header-col">Mentor</span>
-            <span class="header-col">Mentee</span>
-        </div> -->
-        <ul class="match-list">
-            <li class="match-header"> 
-                <span class="header-col"> Mentors </span>
-                <span class="header-col"> Mentees </span>
+    <h1 class="text-5xl font-thin tracking-wide text-center text-white my-8">View People</h1>
+    <div class="max-w-4xl mx-auto">
+        <ul class="space-y-4">
+            <li class="flex justify-between font-thin tracking-wide text-3xl text-slate-100">
+                <span class="flex-1 text-center">Mentors</span>
+                <span class="flex-1 text-center">Mentees</span>
             </li>
             {% for mentor, mentee, mentor_prefs, mentee_prefs in people %}
-            <li class="match-item">
+            <li class="p-6 flex justify-between gap-10">
                 {% if mentor %}
-                    <a href="/edit/{{mentor}}?is_mentor=True" class="mentor-link">{{ mentor }} <br> <span class="prefer-span"> prefers: {{ mentor_prefs }} </span> </a>
+                    <a href="/edit/{{mentor}}?is_mentor=True" class="border-2 border-slate-100 bg-slate-100/10 shadow-md flex-1 text-center hover:bg-indigo-500/20 rounded-lg p-4 transition duration-200">
+                        <div class="text-lg font-semibold text-indigo-900">{{ mentor }}</div>
+                        <div class="text-sm text-gray-600 mt-2" id="{{ mentor }}">prefers: {{ mentor_prefs }}</div>
+                    </a>
+                {% else %}
+                    <div class="flex-1"></div>
                 {% endif %}
                 {% if mentee %}
-                    <a href="/edit/{{mentee}}?is_mentor=False" class="mentee-link">{{ mentee }} <br> <span class="prefer-span"> prefers: {{ mentee_prefs }} </span> </a>
+                    <a href="/edit/{{mentee}}?is_mentor=False" class="border-2 border-slate-100 bg-slate-100/10 shadow-md flex-1 text-center hover:bg-pink-500/20 rounded-lg p-4 transition duration-200">
+                        <div class="text-lg font-semibold text-pink-700">{{ mentee }}</div>
+                        <div class="text-sm text-gray-600 mt-2">prefers: {{ mentee_prefs }}</div>
+                    </a>
+                {% else %}
+                    <div class="flex-1"></div>
                 {% endif %}
             </li>
             {% endfor %}
         </ul>
     </div>
-    <nav style="width: 80%; margin: auto; text-align: center;">
-    <a href="/"> Back to Home </a>
+    <nav class="mt-8 text-center">
+    <a href="/" class="text-slate-100 hover:text-slate-200">← Back to Home</a>
     </nav>
 </body>
 </html>
