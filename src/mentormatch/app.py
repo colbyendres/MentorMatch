@@ -18,6 +18,3 @@ def start_app():
         app.matcher = Matcher(app.people)
     app.register_blueprint(routes_bp)
     return app
-
-
-flask_app = start_app()

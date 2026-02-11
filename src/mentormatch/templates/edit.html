@@ -3,133 +3,79 @@
 
 <head>
     <title>MentorMatch | Edit Person</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='main.css')}}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='select2.min.css') }}" />
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="{{ url_for('static', filename='app.js') }}" defer></script>
 </head>
 
-<body>
+<body class="min-h-screen bg-linear-45 from-purple-500 to-purple-200">
     {% with message = get_flashed_messages(with_categories=True) %}
     {% if message %}
-    <div class="flash">
+    <div class="max-w-2xl mx-auto mb-4 p-4 rounded-lg {% if message[0][0] == 'error' %}bg-red-100 border border-red-400{% else %}bg-green-100 border border-green-400{% endif %}">
         {% if message[0][0] == "error" %}
-        <strong style="color: #ff0000"> Error: </strong>
+        <strong class="text-red-700 font-bold"> Error: </strong>
         {% else %}
-        <strong style="color: #3a7e42"> Success: </strong>
+        <strong class="text-green-700 font-bold"> Success: </strong>
         {% endif %}
-        {{message[0][1]}}
+        <span class="{% if message[0][0] == 'error' %}text-red-700{% else %}text-green-700{% endif %}">{{message[0][1]}}</span>
     </div>
     {% endif %}
     {% endwith %}
-    <h1>Edit Person</h1>
-    <form action="/edit/{{ name }}" method="post">
-        <label for="name">Full Name:</label>
-        <input type="text" name="name" id="name" value="{{ name }}">
-        <br>
+    <div class="max-w-1/2 mx-auto mt-10 p-8">
+    <h1 class="text-5xl font-thin tracking-wide text-center text-white mb-6">Edit Person</h1>
+    <form action="/edit/{{ name }}" method="post" class="space-y-6">
+        <div>
+            <label for="name" class="block text-sm text-slate-100 mb-2">Full Name:</label>
+            <input type="text" name="name" id="name" value="{{name}}" class="w-full px-4 py-2 border border-gray-300 text-slate-200 bg-slate-100/10 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+        </div>
 
-        <label for="is_mentor"> Position </label>
-        <select id="position" name="position" required="True">
-            {% if is_mentor %}
-            <option value="mentor" selected> Mentor </option>
-            <option value="mentee"> Mentee </option>
-            {% else %}
-            <option value="mentor"> Mentor </option>
-            <option value="mentee" selected> Mentee </option>
-            {% endif %}
-        </select>
-        <br>
+        <div>
+            <label class="block text-sm text-slate-100 mb-3">Position:</label>
+            <div class="flex justify-center gap-10">
+                <label class="flex items-center gap-3 cursor-pointer">
+                    <input type="radio" name="position" value="mentor" required {% if is_mentor %}checked {% endif %}  class="w-4 h-4">
+                    <span class="text-slate-100">Mentor</span>
+                </label>
+                <label class="flex items-center gap-3 cursor-pointer">
+                    <input type="radio" name="position" value="mentee" required {% if not is_mentor %}checked {% endif %} class="w-4 h-4 accent-fuchsia-500">
+                    <span class="text-slate-100">Mentee</span>
+                </label>
+            </div>
+        </div>
 
-        <label for="matches">Preferred Matches</label>
-        <select id="matches" class="js-example-basic-multiple" style="width: 80%;" name="matches"
-            multiple="multiple">
-            <optgroup label="mentors">
-                {% for mentor in mentors %}
-                <option value="{{ mentor.name }}" data-role="mentor">{{ mentor.name }}</option>
-                {% endfor %}
-            </optgroup>
-            <optgroup label="mentees">
-                {% for mentee in mentees %}
-                <option value="{{ mentee.name }}" data-role="mentee">{{ mentee.name }}</option>
-                {% endfor %}
-            </optgroup>
+        <div>
+            <label class="block text-sm text-slate-100 mb-2">Preferred Matches:</label>
+            <div id="pillbox" class="flex flex-wrap gap-2 mb-3 p-3 border border-gray-300 bg-slate-100/10 rounded-lg min-h-[44px]"></div>
+            <select id="matches" name="matches" multiple hidden>
+                <optgroup label="mentors">
+                    {% for mentor in mentors %}
+                    <option value="{{ mentor.name }}" data-role="mentor">{{ mentor.name }}</option>
+                    {% endfor %}
+                </optgroup>
+                <optgroup label="mentees">
+                    {% for mentee in mentees %}
+                    <option value="{{ mentee.name }}" data-role="mentee">{{ mentee.name }}</option>
+                    {% endfor %}
+                </optgroup>
+            </select>
+            <button type="button" id="matches-dropdown-trigger" class="w-full px-4 py-2 border border-gray-300 text-slate-200 bg-slate-100/10 rounded-lg focus:ring-2 focus:ring-indigo-500 hover:bg-slate-100/20 transition">
+                + Add match
+            </button>
+        </div>
 
-        </select>
-        <br>
-        <button type="submit"> Make Changes </button>
-        </form>
+        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-lg shadow-lg transition duration-200">Edit Person</button>
+    </form>
 
-        <nav class="link_nav">
+        <nav class="mt-6 flex gap-8 justify-center">
             <form action="/" method="get">
-                <button type="submit" class="link_button"> Return Home </button>
+                <button type="submit" class="text-indigo-600 hover:text-indigo-800 font-medium">← Return Home</button>
             </form>
             <form action="/delete/{{ name }}" method="post" onsubmit="return confirm('Delete this person?')">
                 <input type="hidden" name="_method" value="DELETE">
-                <button type="submit" class="link_button_delete"> Delete Person </button>
+                <button type="submit" class="text-red-600 hover:text-red-700 font-medium">Delete Person</button>
             </form>
         </nav>
+    </div>
 
-    <script>
-        $(document).ready(function() {
-            $("#matches").select2({
-                width: "80%",
-                closeOnSelect: true,
-                multiple: true,
-                dropdownPosition: 'below',
-                placeholder: "Select preferred matches",
-                templateSelection: function (data) {
-                    // Attach role to the selection object so we can style it
-                    let role = $(data.element).data("role");
-
-                    return $('<span class="tag-' + role + '">' + data.text + "</span>");
-                },
-                templateResult: function(option) {
-                    const role = $(option.element).data("role");
-                    if (!role) return option.text; // skip optgroup labels
-                    const color = role === 'mentor' ? "#5b8def" : "#ee4499";
-                    const $option = $(`
-                        <span style="display:flex;align-items:center;gap:8px;color:black;">
-                            <span style="
-                            display:inline-block;
-                            width:10px;
-                            height:10px;
-                            border-radius:50%;
-                            background:${color};
-                            "></span>
-                            ${option.text}
-                        </span>
-                    `);
-                    return $option;
-                }
-            });
-
-        function filterOptions() {
-            const role = $("#position").val();   // either "mentor" or "mentee"
-
-            $("#matches option").each(function () {
-                const optionRole = $(this).data("role");
-
-                if (optionRole === role) {
-                    // Same role. Hide from dropdown.
-                    $(this).attr("disabled", "disabled");
-                } else {
-                    $(this).removeAttr("disabled");
-                }
-            });
-
-            // Force Select2 to refresh the dropdown with new state
-            $("#matches").trigger("change.select2");
-        }
-
-        // Initial filtering
-        filterOptions();
-
-        // Filter again when the role changes
-        $("#position").on("change", function () {
-            filterOptions();
-        });
-    });
-    </script>
 </body>
 
 </html>
