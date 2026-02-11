@@ -36,7 +36,8 @@ class TestRoutes:
     def test_get_edit(self, client, seed_data):
         rsp = client.get('edit/Alice', query_string='is_mentor=True')
         assert rsp.status_code == 200
-        assert b'<option value="mentor" selected>' in rsp.data
+        # Kludge to make sure that query parameters set default position
+        assert re.search(r'value="mentor" required checked', str(rsp.data))
         
     def test_edit_valid_person(self, client, session, seed_data):
         form = {
