@@ -2,60 +2,74 @@
 <html>
 <head>
     <title>MentorMatch | Home</title>
-    <link rel="stylesheet" href="static/main.css">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
-<body>
+<body class="min-h-screen bg-linear-45 from-purple-500 to-purple-200">
     {% with message = get_flashed_messages(with_categories=True) %}
     {% if message %}
-        <div class="flash">
+        <div class="max-w-4xl mx-auto mt-4 p-4 rounded-lg {% if message[0][0] == 'error' %}bg-red-100 border border-red-400{% elif message[0][0] == 'warning' %}bg-yellow-100 border border-yellow-400{% else %}bg-green-100 border border-green-400{% endif %}">
             {% if message[0][0] == "error" %}
-            <strong style="color: #ff0000"> Error: </strong> 
+            <strong class="text-red-700 font-bold"> Error: </strong> 
             {% elif message[0][0] == "warning" %}
-            <strong style="color: #f9e71f"> Warning: </strong>
+            <strong class="text-yellow-700 font-bold"> Warning: </strong>
             {% elif message[0][0] == "success" %}
-            <strong style="color: #3a7e42"> Success: </strong>
+            <strong class="text-green-700 font-bold"> Success: </strong>
             {% endif %}
-            {{message[0][1]}}
+            <span class="{% if message[0][0] == 'error' %}text-red-700{% elif message[0][0] == 'warning' %}text-yellow-700{% else %}text-green-700{% endif %}">{{message[0][1]}}</span>
         </div>
     {% endif %}
     {% endwith %}
-    <div style="text-align: center; margin-top: 20px">
-    <img alt="Astra Logo" src="static/assets/mentormatch.png" style="width:400px; height: 400px;" alt="MentorMatch"/> 
+    <div class="text-center mt-8">
+    <img alt="Astra Logo" src="static/assets/mentormatch.png" class="w-96 h-96 mx-auto" alt="MentorMatch"/> 
     </div>
-    <h1>MentorMatch</h1>
-    <div class="button_div">
+    <h1 class="text-5xl font-thin tracking-wide text-center text-white my-8">MentorMatch</h1>
+    <div class="flex flex-row justify-center gap-8 my-8">
         <form action="/match" method="post">
-            <button class="large" type="submit"><a> Get Started </a> </button>
+            <button class="border-1 border-slate-100 hover:bg-slate-100/30 text-white font-semibold py-3 px-8 rounded-lg shadow-lg transition duration-200 text-lg min-w-[200px]" type="submit">Get Started</button>
         </form>
         <form action="/add" method="get">
-            <button class="large" type="submit"><a> Add Person </a> </button>
+            <button class="border-1 border-slate-100 hover:bg-slate-100/30 text-white font-semibold py-3 px-8 rounded-lg shadow-lg transition duration-200 text-lg min-w-[200px]" type="submit">Add Person</button>
         </form>
         <form action="/view" method="get">
-            <button class="large" type="submit"><a> View People </a> </button>
+            <button class="border-1 border-slate-100 hover:bg-slate-100/30 text-white font-semibold py-3 px-8 rounded-lg shadow-lg transition duration-200 text-lg min-w-[200px]" type="submit">View People</button>
         </form>
     </div>
-    <div class="hline"> </div>
-    <h2 class="about_header"> What is MentorMatch? </h2>
-    <p class="about_text"> MentorMatch is a service designed to pair mentors to mentees. Each user can create a customizable profile,
-        allowing them to select as many preferred partners as they like. When all of the profiles are complete, MentorMatch will
-        generate a mapping that maximizes the happiness of all parties involved.
-    </p>
-    <h2 class="about_header"> How does MentorMatch work? </h2>
-    <p class="about_text">
-        The designation of mentors and mentees naturally forms the structure of a <a href="https://en.wikipedia.org/wiki/Bipartite_graph"> bipartite graph</a>.
-        We generate our assignments via solving a max-weight bipartite matching problem. Our weights are defined as follows: </p>
-        <ul class="weight_list">
-            <li class="weight_bullet"> <img src="static/assets/icons/heart.tiff" class="mini_icon"> Both partners listed each other as preferred  <span> (2 points) </span>
-            <li class="weight_bullet"> <img src="static/assets/icons/happy.tiff" class="mini_icon">  Exactly one partner listed another as preferred  <span> (1 point) </span>
-            <li class="weight_bullet"> <img src="static/assets/icons/meh.tiff" class="mini_icon">  Neither partner listed each other as preferred <span> (0 points) </span>
-        </ul>
-    <p class="about_text">
-        The full matching can be viewed via the "Getting Started" page. It can also be downloaded as a separate CSV file,
-        which lists the mentor-mentee pairs as well as the matching score.
-    </p>
-    <h2 class="about_header"> How can I learn more? </h2>
-    <p class="about_text">
-        The full source code for MentorMatch, including sample datasets, can be found <a href="https://github.com/colbyendres/MentorMatch"> here</a>.
-    </p>
+    <div class="border-t-2 border-slate-100 max-w-4xl mx-auto my-8"></div>
+    <div class="max-w-4xl mx-auto px-8 pb-12">
+        <h2 class="text-3xl font-bold text-indigo-900 mb-4"> What is MentorMatch? </h2>
+        <p class="text-zinc-200 font-light text-lg mb-6 leading-relaxed"> MentorMatch is a service designed to pair mentors to mentees. Each user can create a customizable profile,
+            allowing them to select as many preferred partners as they like. When all of the profiles are complete, MentorMatch will
+            generate a mapping that maximizes the happiness of all parties involved.
+        </p>
+        <h2 class="text-3xl font-bold text-indigo-900 mb-4"> How does MentorMatch work? </h2>
+        <p class="text-zinc-200 font-light text-lg mb-4 leading-relaxed">
+            The designation of mentors and mentees naturally forms the structure of a <a href="https://en.wikipedia.org/wiki/Bipartite_graph" class="underline hover:no-underline"> bipartite graph</a>.
+            We generate our assignments via solving a max-weight bipartite matching problem. Our weights are defined as follows: </p>
+            <ul class="space-y-3 ml-4 mb-6">
+                <li class="flex items-center justify-between text-zinc-200 text-lg">
+                    <img src="static/assets/icons/heart.tiff" class="w-8 h-8">
+                    <span class="flex-1 mx-4 text-center">Both partners listed each other as preferred</span>
+                    <span class="text-indigo-800 font-semibold">(2 points)</span>
+                </li>
+                <li class="flex items-center justify-between text-zinc-200 text-lg">
+                    <img src="static/assets/icons/happy.tiff" class="w-8 h-8">
+                    <span class="flex-1 mx-4 text-center">Exactly one partner listed another as preferred</span>
+                    <span class="text-indigo-800 font-semibold">(1 point)</span>
+                </li>
+                <li class="flex items-center justify-between text-zinc-200 text-lg">
+                    <img src="static/assets/icons/meh.tiff" class="w-8 h-8">
+                    <span class="flex-1 mx-4 text-center">Neither partner listed each other as preferred</span>
+                    <span class="text-indigo-800 font-semibold">(0 points)</span>
+                </li>
+            </ul>
+        <p class="text-zinc-200 font-light text-lg mb-6 leading-relaxed">
+            The full matching can be viewed via the "Getting Started" page. It can also be downloaded as a separate CSV file,
+            which lists the mentor-mentee pairs as well as the matching score.
+        </p>
+        <h2 class="text-3xl font-bold text-indigo-900 mb-4"> How can I learn more? </h2>
+        <p class="text-zinc-200 font-light text-lg leading-relaxed">
+            The full source code for MentorMatch, including sample datasets, can be found <a href="https://github.com/colbyendres/MentorMatch" class="underline hover:no-underline"> here</a>.
+        </p>
+    </div>
 </body>
 </html>
