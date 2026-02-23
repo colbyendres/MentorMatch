@@ -1,4 +1,5 @@
 import pytest
+import os
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import scoped_session, sessionmaker
 
@@ -26,16 +27,17 @@ def add_people_with_prefs(session, people, prefs):
 
 @pytest.fixture(scope="session")
 def test_engine():
-    """Create a test database engine with test_schema."""
-    engine = create_engine(Config.DATABASE_URL)
+    """Create a test database engine using TEST_DB_URL."""
+    if Config.TEST_DB_URL is None:
+        raise ValueError("TEST_DB_URL not set in environment")
+    engine = create_engine(Config.TEST_DB_URL)
     yield engine
 
 
 @pytest.fixture(scope="session")
 def app():
-    """Create and configure a test Flask app instance."""
-    test_app = start_app()
-    # Override database session to use test
+    """Create and configure a test Flask app instance with test database."""
+    test_app = start_app(is_testing=True)
     with test_app.app_context():
         yield test_app
 
@@ -54,7 +56,6 @@ def session(app, test_engine):
     
     connection = test_engine.connect()
     transaction = connection.begin()
-    connection.execute(text("SET search_path TO test"))
     
     session_factory = sessionmaker(bind=connection)
     test_session = scoped_session(session_factory)
@@ -62,6 +63,7 @@ def session(app, test_engine):
     # Override commit and rollback to prevent them from closing the transaction
     test_session.commit = lambda: test_session.flush()
     test_session.rollback = lambda: test_session.flush()
+    
     with app.app_context():
         db.session = test_session
         

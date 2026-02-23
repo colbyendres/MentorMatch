@@ -5,10 +5,15 @@ from mentormatch.matcher import Matcher, PeopleInfo
 from mentormatch.models import db
 
 
-def start_app():
+def start_app(is_testing=False):
     app = Flask(__name__)
     app.secret_key = Config.SECRET_KEY
-    app.config["SQLALCHEMY_DATABASE_URI"] = Config.DATABASE_URL
+    if is_testing:
+        print(f'Using test database at {Config.TEST_DB_URL}')
+        app.config["SQLALCHEMY_DATABASE_URI"] = Config.TEST_DB_URL
+    else:
+        app.config["SQLALCHEMY_DATABASE_URI"] = Config.DATABASE_URL
+        
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
     db.init_app(app)

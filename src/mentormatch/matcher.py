@@ -1,5 +1,6 @@
 import numpy as np
 import csv
+import logging
 
 from mentormatch.models import Person, Preference
 from mentormatch.config import Config
@@ -49,7 +50,7 @@ class PeopleInfo:
                 self.db_index[(PeopleInfo.COL, self.num_mentees)] = person.id
                 self.num_mentees += 1
                 
-        Config.logger.info(f'Created indices with {self.num_mentors} mentors and {self.num_mentees} mentees')
+        logging.info(f'Created indices with {self.num_mentors} mentors and {self.num_mentees} mentees')
         self.indices_valid = True
 
     def construct_matrix(self):
@@ -140,12 +141,12 @@ class PeopleInfo:
             self.matrix_index[p.id] = (PeopleInfo.ROW, self.num_mentors)
             self.db_index[(PeopleInfo.ROW, self.num_mentors)] = p.id
             self.num_mentors += 1
-            Config.logger.info(f'Added mentor {name} with id {p.id}')
+            logging.info(f'Added mentor {name} with id {p.id}')
         else:
             self.matrix_index[p.id] = (PeopleInfo.COL, self.num_mentees)
             self.db_index[(PeopleInfo.COL, self.num_mentees)] = p.id
             self.num_mentees += 1
-            Config.logger.info(f'Added mentee {name} with id {p.id}')
+            logging.info(f'Added mentee {name} with id {p.id}')
 
         self.matrix_valid = False
         self.matrix = None
@@ -176,7 +177,7 @@ class PeopleInfo:
         # NOTE: We cannot simply remove the person from the dictionary
         # This breaks the sequential nature of the values (i.e. the row/col indices)
         # NOTE: We could be more selective, keeping people whose status differs from the deleted person
-        Config.logger.debug(f'Deleted person {name} with id {person.id}, invalidating matrix')
+        logging.debug(f'Deleted person {name} with id {person.id}, invalidating matrix')
         self.matrix_index = {}
         self.db_index = {}
         self.matrix_valid = False
@@ -322,7 +323,7 @@ class Matcher:
         """
         # Are we allowed to reuse the cached matching?
         if not force_rematch and self.matches and self.people_info.matrix_valid:
-            Config.logger.debug('Returning cached matching')
+            logging.debug('Returning cached matching')
             return self.matches
 
         mat = self.people_info.construct_matrix()
