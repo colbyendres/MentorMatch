@@ -336,7 +336,7 @@ class Matcher:
         # This allows the user to refresh and potentially get a new matching
         # Note that this preserves the partial ordering of pairs
         # (i.e. for pairs p1,p2: p1 > p2 => fuzz(p1) > fuzz(p2))
-        fuzz = self.rng.uniform(0, 1, mat.shape)
+        fuzz = self.rng.uniform(0, 1 / mat.shape[0], mat.shape)
         row_idx, col_idx = linear_sum_assignment(
             cost_matrix=mat+fuzz, maximize=True)
         mentor_names, mentee_names = self.people_info.get_from_indices(
