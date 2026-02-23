@@ -33,6 +33,7 @@ jobs:
       run: |
         echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env
         echo "TEST_DB_URL=${{ vars.TEST_DB_URL }}" >> .env
+        echo "DATABASE_URL=${{ vars.DATABASE_URL }}" >> .env
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
