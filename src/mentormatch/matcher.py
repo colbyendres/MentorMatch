@@ -64,7 +64,7 @@ class PeopleInfo:
         """
         # Cached matrix is in a valid state, can skip computation
         if self.matrix_valid:
-            Config.logger.debug('Returning cached pref matrix')
+            logging.debug('Returning cached pref matrix')
             return self.matrix
 
         # Indices are out-of-date, reconstitute them from prefs table
@@ -281,12 +281,17 @@ class PeopleInfo:
         db_ids = [self.db_index[(PeopleInfo.ROW, idx)] for idx in mentor_idx]
         db_ids.extend([self.db_index[(PeopleInfo.COL, idx)]
                       for idx in mentee_idx])
-        people = self.db.query(Person.name).filter(Person.id.in_(db_ids)).order_by(
-            func.array_position(db_ids, Person.id)).all()
-        people = [p for (p,) in people]
-        n = len(people) // 2
-        return people[:n], people[n:]
-
+        people = self.db.query(Person.id, Person.name).filter(Person.id.in_(db_ids)).all()
+        mentor_names = [None for _ in range(len(mentor_idx))]
+        mentee_names = [None for _ in range(len(mentee_idx))]
+        for db_id, name in people:
+            axis, idx = self.matrix_index[db_id]
+            if axis == PeopleInfo.ROW:
+                mentor_names[idx] = name
+            else:
+                mentee_names[idx] = name
+        return mentor_names, mentee_names
+    
     def get_from_name(self, user_name: str):
         """
         Retrieve person by name
