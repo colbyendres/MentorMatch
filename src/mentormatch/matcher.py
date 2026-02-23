@@ -50,7 +50,7 @@ class PeopleInfo:
                 self.db_index[(PeopleInfo.COL, self.num_mentees)] = person.id
                 self.num_mentees += 1
                 
-        logging.info(f'Created indices with {self.num_mentors} mentors and {self.num_mentees} mentees')
+        logging.info('Created indices with %d mentors and %d mentees', self.num_mentors, self.num_mentees)
         self.indices_valid = True
 
     def construct_matrix(self):
@@ -141,12 +141,12 @@ class PeopleInfo:
             self.matrix_index[p.id] = (PeopleInfo.ROW, self.num_mentors)
             self.db_index[(PeopleInfo.ROW, self.num_mentors)] = p.id
             self.num_mentors += 1
-            logging.info(f'Added mentor {name} with id {p.id}')
+            logging.info('Added mentor %s with id %d', name, p.id)
         else:
             self.matrix_index[p.id] = (PeopleInfo.COL, self.num_mentees)
             self.db_index[(PeopleInfo.COL, self.num_mentees)] = p.id
             self.num_mentees += 1
-            logging.info(f'Added mentee {name} with id {p.id}')
+            logging.info('Added mentee %s with id %d', name, p.id)
 
         self.matrix_valid = False
         self.matrix = None
@@ -177,7 +177,7 @@ class PeopleInfo:
         # NOTE: We cannot simply remove the person from the dictionary
         # This breaks the sequential nature of the values (i.e. the row/col indices)
         # NOTE: We could be more selective, keeping people whose status differs from the deleted person
-        logging.debug(f'Deleted person {name} with id {person.id}, invalidating matrix')
+        logging.debug('Deleted person %s with id %d, invalidating matrix', name, person.id)
         self.matrix_index = {}
         self.db_index = {}
         self.matrix_valid = False
@@ -353,7 +353,7 @@ class Matcher:
             None
         """
         self.match()
-        with open(Config.REMOTE_MATCH_FILE, 'w', newline='') as fp:
+        with open(Config.REMOTE_MATCH_FILE, 'w', newline='', encoding='utf-8') as fp:
             writer = csv.writer(fp)
             # Headers
             writer.writerow(['Mentor', 'Mentee', 'Matching Score'])

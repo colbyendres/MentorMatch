@@ -5,7 +5,7 @@ name: MentorMatch
 
 on:
   push:
-    branches: [ "main", "sqlite3"]
+    branches: [ "main"]
   pull_request:
     branches: [ "main" ] 
 
