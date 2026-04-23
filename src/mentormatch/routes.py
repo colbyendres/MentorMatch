@@ -1,42 +1,20 @@
 import flask
 import os
-from urllib.parse import urljoin, urlparse
 from mentormatch.config import Config
+from mentormatch.auth_helpers import is_admin, is_auth_enabled, is_public_endpoint, is_safe_redirect_target, can_modify_person
 
 bp = flask.Blueprint('main', __name__)
-
-# Resources unauthorized users can access, assuming auth in place
-PUBLIC_ENDPOINTS = {
-    'main.root',
-    'main.home',
-    'main.login',
-    'main.login_google',
-    'main.login_callback',
-    'main.logout',
-    'static',
-}
-
-
-def _is_safe_redirect_target(target):
-    host_url = urlparse(flask.request.host_url)
-    redirect_url = urlparse(urljoin(flask.request.host_url, target))
-    return (
-        redirect_url.scheme in {'http', 'https'}
-        and host_url.netloc == redirect_url.netloc
-    )
-
 
 @bp.before_app_request
 def ensure_authorized_user():
     """ Ensure that the user has permission to access particular resource """
     
     # Auth is disabled, early return
-    if not flask.current_app.config.get('AUTH_ENABLED', False):
+    if not is_auth_enabled():
         return
 
     # User requested public endpoint, no need for auth
-    endpoint = flask.request.endpoint
-    if endpoint is None or endpoint in PUBLIC_ENDPOINTS:
+    if is_public_endpoint(flask.request.endpoint):
         return
 
     # User exists and is authenticated
@@ -64,6 +42,10 @@ def home():
 
 @bp.route("/match", methods=["POST"])
 def match():
+    # Hide match functionality from non-admin users
+    if is_auth_enabled() and not is_admin(flask.session.get('user')):
+        flask.flash('Must be admin user to view match', 'warning')
+        return flask.render_template("home.html")
     try:
         force_rematch = flask.request.args.get('force_rematch', False) == 'true'
         matches = flask.current_app.matcher.match(force_rematch)
@@ -87,7 +69,7 @@ def add():
             name = flask.request.form['name']
             designation = flask.request.form['position']
             prefs = flask.request.form.getlist('matches')
-            email = flask.session.get('user', {})['email']
+            email = flask.session.get('user', {}).get('email')
             flask.current_app.people.add_person(name, designation, prefs, email)
             flask.flash(
                 f'Added {designation} {name} to MentorMatch', 'success')
@@ -98,7 +80,11 @@ def add():
 
 @bp.route("/view", methods=["GET"])
 def view():
-    people = flask.current_app.people.get_people_with_prefs()
+    user = flask.session.get('user')
+    # We want to hide the preferences of other users
+    # Make exception for admin users, who should be able to view all prefs
+    user_email = user['email'] if is_auth_enabled() and not is_admin(user) else None
+    people = flask.current_app.people.get_people_with_prefs(user_email)
     return flask.render_template("view.html", people=people)
 
 @bp.route("/login", methods=["GET"])
@@ -141,8 +127,9 @@ def login_callback():
         'picture': user_info.get('picture'),
     }
 
+    # Redirect the user back to the original page they tried to access
     next_url = flask.session.pop('next_url', None)
-    if next_url and _is_safe_redirect_target(next_url):
+    if next_url and is_safe_redirect_target(next_url):
         return flask.redirect(next_url)
 
     return flask.redirect(flask.url_for('main.home'))
@@ -167,6 +154,11 @@ def download():
 
 @bp.route("/edit/<string:user_name>", methods=["GET", "POST"])
 def edit(user_name):
+    # Check to make sure we have necessary privilege to edit
+    if not can_modify_person(flask.session.get('user'), user_name):
+        flask.flash('Cannot edit person associated with different user', 'error')
+        return flask.redirect(flask.url_for('main.view'))
+        
     if flask.request.method == "GET":
         is_mentor = flask.request.args.get('is_mentor').lower() == 'true'
         mentors, mentees = flask.current_app.people.get_people_without_prefs()
@@ -175,12 +167,12 @@ def edit(user_name):
         new_name = flask.request.form['name']
         new_is_mentor = flask.request.form['position'] == 'mentor'
         new_prefs = flask.request.form.getlist('matches')
-        old_name = user_name  # TODO: Fix this, since name is editable
+        old_name = user_name
         try:
             flask.current_app.people.edit_person(
                 old_name, new_name, new_is_mentor, new_prefs)
             flask.flash('Profile updated', 'success')
-        except Exception as e:
+        except ValueError as e:
             flask.flash(str(e), 'error')
             flask.redirect(flask.url_for('main.home'), code=404)
         return flask.redirect(flask.url_for('main.home'))
@@ -188,6 +180,10 @@ def edit(user_name):
 
 @bp.route("/delete/<string:user_name>", methods=["POST"])
 def delete(user_name):
+    # Check to make sure we have necessary privilege to edit
+    if not can_modify_person(flask.session.get('user'), user_name):
+        flask.flash('Cannot delete person associated with different user', 'error')
+        return flask.redirect(flask.url_for('main.view'))
     try:
         flask.current_app.people.delete_person(user_name)
         flask.flash(f'Person {user_name} deleted', 'success')

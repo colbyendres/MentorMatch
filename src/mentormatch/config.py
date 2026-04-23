@@ -1,7 +1,7 @@
 import os
 import logging
 from dotenv import load_dotenv
-
+import json
 
 class Config:
     load_dotenv()
@@ -32,5 +32,7 @@ class Config:
     DATABASE_URL = parse_database_url(DATABASE_URL)
     if TEST_DB_URL is not None:
         TEST_DB_URL = parse_database_url(TEST_DB_URL)
+        
+    ADMIN_USERS = set(json.loads(os.environ.get('ADMIN_USERS', '')))
         
     REMOTE_MATCH_FILE = 'data/match.csv'
