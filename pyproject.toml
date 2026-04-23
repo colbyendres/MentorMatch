@@ -20,7 +20,8 @@ requires-python = ">=3.10"
 dev = [
     "pytest",
     "pytest-flask-sqlalchemy",
-    "pytest-cov"
+    "pytest-cov",
+    "requests"
 ]
 
 [build-system]
