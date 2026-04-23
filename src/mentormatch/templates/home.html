@@ -19,6 +19,16 @@
         </div>
     {% endif %}
     {% endwith %}
+    <div class="max-w-6xl mx-auto mt-4 px-6 flex justify-end">
+        {% if current_user %}
+            <div class="text-slate-100 text-md flex items-center gap-4">
+                <span>Signed in as {{ current_user.name or current_user.email }}</span>
+                <a href="/logout" class="underline hover:no-underline">Sign out</a>
+            </div>
+        {% else %}
+            <a href="/login" class="text-slate-100 underline hover:no-underline">Sign in</a>
+        {% endif %}
+    </div>
     <div class="text-center mt-8">
     <img alt="Astra Logo" src="static/assets/mentormatch.png" class="w-96 h-96 mx-auto" alt="MentorMatch"/> 
     </div>

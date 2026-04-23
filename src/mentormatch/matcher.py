@@ -5,7 +5,6 @@ import logging
 from mentormatch.models import Person, Preference
 from mentormatch.config import Config
 
-from sqlalchemy import func
 from sqlalchemy.exc import SQLAlchemyError
 
 from itertools import zip_longest
@@ -72,7 +71,6 @@ class PeopleInfo:
             self._map_indices()
 
         if self.num_mentors != self.num_mentees:
-            # TODO: Handle case when mapping isn't a bijection
             raise ValueError('Number of mentees and mentors differ!')
 
         if self.num_mentors == 0:
@@ -162,16 +160,14 @@ class PeopleInfo:
             None
         """
         try:
-            person = Person.query.filter_by(name=name).first()
-            if not person:
-                raise ValueError(f'Person {name} not found')
+            person = self.get_from_name(name)
             self.db.delete(person)
             self.db.commit()
         except ValueError as e:
             raise e
         except SQLAlchemyError as e:
             self.db.rollback()
-            raise e
+            raise ValueError from e
 
         # Invalidate mapping data
         # NOTE: We cannot simply remove the person from the dictionary
@@ -186,7 +182,7 @@ class PeopleInfo:
 
     def edit_person(self, old_name: str, new_name: str, new_is_mentor: bool, new_prefs: list[str]):
         """
-        Adds person to database. This invalidates the cached matrix
+        Edits person in database. This invalidates the cached matrix
         If the new values are invalid, the edit is cancelled and the original data is unchanged
         
         Args:
@@ -214,7 +210,7 @@ class PeopleInfo:
                     raise ValueError(f"Preference cannot exist between two {'mentors' if p.is_mentor else 'mentees'}!")
                 prefs.append(Preference(preferrer_id=p.id, preferee_id=pref.id))
             
-            # Delete all outgoing preferences for p
+            # All prefs are legitimate, so clear all outgoing preferences for p
             # We don't need to touch incoming preferences, since p's id is unchanged on edit
             Preference.query.filter_by(preferrer_id=p.id).delete()
             self.db.add_all(prefs)
@@ -224,7 +220,7 @@ class PeopleInfo:
             raise e
         except SQLAlchemyError as e:
             self.db.rollback()
-            raise e
+            raise ValueError from e
 
         self.matrix_valid = False
         self.matrix = None
@@ -245,9 +241,13 @@ class PeopleInfo:
                 mentees.append(person)
         return mentors, mentees
 
-    def get_people_with_prefs(self):
+    def get_people_with_prefs(self, user_email: str | None):
         """
-        Retrieve all people within MentorMatch
+        Retrieve all people within MentorMatch, optionally redacting preferences
+        for people not associated with current user
+        
+        Args:
+            user_email (str | None): user email or None, if no redaction is to be performed
 
         Returns:
             mentors (list[Person]): Mentors
@@ -257,13 +257,16 @@ class PeopleInfo:
         """
         mentors, mentees = [], []
         mentor_prefs, mentee_prefs = [], []
+        redact_prefs = user_email is not None
+        
         for person in Person.query.all():
+            pref_str = person.get_prefs_as_str() if not redact_prefs or user_email == person.email else ''
             if person.is_mentor:
                 mentors.append(person)
-                mentor_prefs.append(person.get_prefs_as_str())
+                mentor_prefs.append(pref_str)
             else:
                 mentees.append(person)
-                mentee_prefs.append(person.get_prefs_as_str())
+                mentee_prefs.append(pref_str)
         return list(zip_longest(mentors, mentees, mentor_prefs, mentee_prefs, fillvalue=None))
 
     def get_from_indices(self, mentor_idx, mentee_idx):
@@ -305,6 +308,12 @@ class PeopleInfo:
         p = Person.query.filter_by(name=user_name).first()
         if not p:
             raise ValueError(f'Person {user_name} not found')
+        return p
+    
+    def get_from_email(self, user_email: str):
+        p = Person.query.filter_by(email=user_email).first()
+        if not p:
+            raise ValueError(f'Person with email {user_email} not found')
         return p
 
 
