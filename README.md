@@ -35,5 +35,11 @@ MentorMatch uses Postegres for the database and requires the `SECRET_KEY` variab
 ```bash
 echo "DATABASE_URL=your-postgres-url" >> .env
 echo "SECRET_KEY=your-secret-key" >> .env
+echo "GOOGLE_CLIENT_ID=your-google-client-id" >> .env
+echo "GOOGLE_CLIENT_SECRET=your-google-client-secret" >> .env
 ```
+For Google OAuth, add the authorized redirect URI in Google Cloud Console as:
+- `http://localhost:5000/login/callback` (local)
+- `https://<your-domain>/login/callback` (production)
+
 With the configuration variables set, MentorMatch can be run with `flask run`.

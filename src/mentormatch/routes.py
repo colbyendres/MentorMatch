@@ -1,8 +1,55 @@
 import flask
 import os
+from urllib.parse import urljoin, urlparse
 from mentormatch.config import Config
 
 bp = flask.Blueprint('main', __name__)
+
+# Resources unauthorized users can access, assuming auth in place
+PUBLIC_ENDPOINTS = {
+    'main.root',
+    'main.home',
+    'main.login',
+    'main.login_google',
+    'main.login_callback',
+    'main.logout',
+    'static',
+}
+
+
+def _is_safe_redirect_target(target):
+    host_url = urlparse(flask.request.host_url)
+    redirect_url = urlparse(urljoin(flask.request.host_url, target))
+    return (
+        redirect_url.scheme in {'http', 'https'}
+        and host_url.netloc == redirect_url.netloc
+    )
+
+
+@bp.before_app_request
+def ensure_authorized_user():
+    """ Ensure that the user has permission to access particular resource """
+    
+    # Auth is disabled, early return
+    if not flask.current_app.config.get('AUTH_ENABLED', False):
+        return
+
+    # User requested public endpoint, no need for auth
+    endpoint = flask.request.endpoint
+    if endpoint is None or endpoint in PUBLIC_ENDPOINTS:
+        return
+
+    # User exists and is authenticated
+    if flask.session.get('user'):
+        return
+
+    # If we've reached this point, the does not have the proper authentication
+    # Stash the requested page in the session, so we can redirect there after auth
+    if flask.request.method == 'GET':
+        flask.session['next_url'] = flask.request.url
+
+    flask.flash('Please sign in to continue', 'warning')
+    return flask.redirect(flask.url_for('main.login'))
 
 
 @bp.route("/", methods=["GET"])
@@ -40,7 +87,8 @@ def add():
             name = flask.request.form['name']
             designation = flask.request.form['position']
             prefs = flask.request.form.getlist('matches')
-            flask.current_app.people.add_person(name, designation, prefs)
+            email = flask.session.get('user', {})['email']
+            flask.current_app.people.add_person(name, designation, prefs, email)
             flask.flash(
                 f'Added {designation} {name} to MentorMatch', 'success')
         except (ValueError, TypeError) as e:
@@ -53,8 +101,58 @@ def view():
     people = flask.current_app.people.get_people_with_prefs()
     return flask.render_template("view.html", people=people)
 
-# TODO: Should this really be a GET?
+@bp.route("/login", methods=["GET"])
+def login():
+    if flask.session.get('user'):
+        return flask.redirect(flask.url_for('main.home'))
+    return flask.render_template(
+        'login.html',
+        auth_enabled=flask.current_app.config.get('AUTH_ENABLED', False),
+    )
 
+
+@bp.route('/login/google', methods=['GET'])
+def login_google():
+    if not flask.current_app.config.get('AUTH_ENABLED', False):
+        flask.flash('Google login is not configured on this server', 'warning')
+        return flask.redirect(flask.url_for('main.login'))
+
+    redirect_uri = flask.url_for('main.login_callback', _external=True)
+    return flask.current_app.oauth.google.authorize_redirect(redirect_uri)
+
+
+@bp.route('/login/callback', methods=['GET'])
+def login_callback():
+    if not flask.current_app.config.get('AUTH_ENABLED', False):
+        return flask.redirect(flask.url_for('main.home'))
+
+    try:
+        token = flask.current_app.oauth.google.authorize_access_token()
+        user_info = token.get('userinfo')
+        if not user_info:
+            user_info = flask.current_app.oauth.google.parse_id_token(token)
+    except (KeyError, TypeError, ValueError):
+        flask.flash('Unable to sign in with Google', 'error')
+        return flask.redirect(flask.url_for('main.login'))
+
+    flask.session['user'] = {
+        'email': user_info.get('email'),
+        'name': user_info.get('name'),
+        'picture': user_info.get('picture'),
+    }
+
+    next_url = flask.session.pop('next_url', None)
+    if next_url and _is_safe_redirect_target(next_url):
+        return flask.redirect(next_url)
+
+    return flask.redirect(flask.url_for('main.home'))
+
+
+@bp.route('/logout', methods=['GET'])
+def logout():
+    flask.session.pop('user', None)
+    flask.session.pop('next_url', None)
+    return flask.redirect(flask.url_for('main.home'))
 
 @bp.route("/match/download", methods=["GET"])
 def download():

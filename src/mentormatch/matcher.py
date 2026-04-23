@@ -5,7 +5,6 @@ import logging
 from mentormatch.models import Person, Preference
 from mentormatch.config import Config
 
-from sqlalchemy import func
 from sqlalchemy.exc import SQLAlchemyError
 
 from itertools import zip_longest
@@ -72,7 +71,6 @@ class PeopleInfo:
             self._map_indices()
 
         if self.num_mentors != self.num_mentees:
-            # TODO: Handle case when mapping isn't a bijection
             raise ValueError('Number of mentees and mentors differ!')
 
         if self.num_mentors == 0:
@@ -162,9 +160,7 @@ class PeopleInfo:
             None
         """
         try:
-            person = Person.query.filter_by(name=name).first()
-            if not person:
-                raise ValueError(f'Person {name} not found')
+            person = self.get_from_name(name)
             self.db.delete(person)
             self.db.commit()
         except ValueError as e:

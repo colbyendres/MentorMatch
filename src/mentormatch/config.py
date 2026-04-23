@@ -14,7 +14,6 @@ class Config:
         if 'postgres://' in url:
             # SQLAlchemy expects the URI to begin with postgresql
             modified_url = url.replace('postgres://', 'postgresql://')
-            logging.debug('Using remote Postgres database')
         elif 'sqlite:///' in url:
             db_name = url.removeprefix('sqlite:///')
             curr_file_path = os.path.abspath(__file__)
@@ -25,12 +24,13 @@ class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY')
     DATABASE_URL = os.environ.get('DATABASE_URL')
     TEST_DB_URL = os.environ.get('TEST_DB_URL')
+    GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID')
+    GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET')
     
     if DATABASE_URL is None:
         raise ValueError('Set DATABASE_URL in file')
     DATABASE_URL = parse_database_url(DATABASE_URL)
     if TEST_DB_URL is not None:
-        print(f'{TEST_DB_URL=}')
         TEST_DB_URL = parse_database_url(TEST_DB_URL)
         
     REMOTE_MATCH_FILE = 'data/match.csv'
