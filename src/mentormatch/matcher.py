@@ -167,7 +167,7 @@ class PeopleInfo:
             raise e
         except SQLAlchemyError as e:
             self.db.rollback()
-            raise e
+            raise ValueError from e
 
         # Invalidate mapping data
         # NOTE: We cannot simply remove the person from the dictionary

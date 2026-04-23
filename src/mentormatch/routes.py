@@ -99,7 +99,7 @@ def login():
 
 @bp.route('/login/google', methods=['GET'])
 def login_google():
-    if not flask.current_app.config.get('AUTH_ENABLED', False):
+    if not is_auth_enabled():
         flask.flash('Google login is not configured on this server', 'warning')
         return flask.redirect(flask.url_for('main.login'))
 
@@ -109,7 +109,7 @@ def login_google():
 
 @bp.route('/login/callback', methods=['GET'])
 def login_callback():
-    if not flask.current_app.config.get('AUTH_ENABLED', False):
+    if not is_auth_enabled():
         return flask.redirect(flask.url_for('main.home'))
 
     try:
@@ -187,7 +187,7 @@ def delete(user_name):
     try:
         flask.current_app.people.delete_person(user_name)
         flask.flash(f'Person {user_name} deleted', 'success')
-    except Exception as e:
+    except ValueError as e:
         flask.flash(str(e), 'error')
         flask.redirect(flask.url_for('main.home'), code=404)
     return flask.redirect(flask.url_for('main.home'))
